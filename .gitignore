@@ -2,5 +2,6 @@
 *.exe
 *.in
 *.zip
-*pptx
-*docx
+*.pptx
+*.docx
+*.js
