@@ -4,3 +4,5 @@
 *.zip
 *pptx
 *docx
+*.bin
+*ipch
