@@ -21,13 +21,12 @@ typedef enum
 typedef enum
 {
   RESP_OK = 0,
-  RESP_STATUS=1,
+  RESP_STATUS = 1,
   RESP_BAD_PACKET = 2,
   RESP_BAD_CHECKSUM = 3,
   RESP_BAD_COMMAND = 4,
-  RESP_BAD_RESPONSE = 5 
+  RESP_BAD_RESPONSE = 5
 } TResponseType;
-
 
 // Commands
 // For direction commands, param[0] = distance in cm to move
@@ -42,5 +41,40 @@ typedef enum
   COMMAND_GET_STATS = 5,
   COMMAND_CLEAR_STATS = 6
 } TCommandType;
-#endif
 
+/*
+  Limits for motors/controls
+*/
+typedef enum
+{
+  MAX_POWER = 100,
+  MAX_ROTATE = 100,
+  FAILSAFE = 10,
+}Limits;
+
+/*
+  Definitions for motors/encoders
+*/
+typedef enum
+{
+  COUNTS_PER_REV = 195,
+  WHEEL_CIRC = 20,
+  LEFT_FOR = 5,
+  LEFT_RVR = 6,
+  RIGHT_FOR = 10,
+  RIGHT_RVR = 11,
+}Motors;
+
+/*
+  Direction definition
+*/
+typedef enum
+{
+  STOP = 0,
+  FORWARD = 1,
+  BACKWARD = 2,
+  LEFT = 3,
+  RIGHT = 4
+} TDirection;
+
+#endif
