@@ -148,6 +148,22 @@ void initializeState()
   clearCounters();
 }
 
+int readSerial(char *buffer)
+{
+
+  int count = 0;
+
+  while (Serial.available())
+    buffer[count++] = Serial.read();
+
+  return count;
+}
+
+void writeSerial(const char *buffer, int len)
+{
+  Serial.write(buffer, len);
+}
+
 void handleCommand(TPacket *command)
 {
   switch (command->command)
