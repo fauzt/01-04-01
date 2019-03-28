@@ -1,4 +1,4 @@
-#ifndef __ALEXSETUP_H_
+#ifndef __ALEXSETUP_H__
 #define __ALEXSETUP_H__
 
 void enablePullups()

@@ -3,6 +3,7 @@
 #include "packet.h"
 #include "constants.h"
 #include "alexsetup.h"
+#include "responses.h"
 
 volatile TDirection dir = STOP;
 //stores forward/reverse distance travelled
@@ -15,6 +16,36 @@ volatile unsigned long forwardticks;
 volatile unsigned long reverseticks;
 volatile unsigned long leftturnticks;
 volatile unsigned long rightturnticks;
+
+void sendStatus()
+{
+  // Implement code to send back a packet containing key
+  // information like leftTicks, rightTicks, leftRevs, rightRevs
+  // forwardDist and reverseDist
+  // Use the params array to store this information, and set the
+  // packetType and command files accordingly, then use sendResponse
+  // to send out the packet. See sendMessage on how to use sendResponse.
+  //
+  TPacket statusPacket;
+
+  statusPacket.packetType = PACKET_TYPE_RESPONSE;
+  statusPacket.command = RESP_STATUS;
+
+//  statusPacket.params[0] = leftForwardTicks;
+//  statusPacket.params[1] = rightForwardTicks;
+//  statusPacket.params[2] = leftReverseTicks;
+//  statusPacket.params[3] = rightReverseTicks;
+//  statusPacket.params[4] = leftForwardTicksTurns;
+//  statusPacket.params[5] = rightForwardTicksTurns;
+//  statusPacket.params[6] = leftReverseTicksTurns;
+//  statusPacket.params[7] = rightReverseTicksTurns;
+//  statusPacket.params[8] = forwardDist;
+//  statusPacket.params[9] = reverseDist;
+
+  sendResponse(&statusPacket);
+}
+
+
 
 void clearCounters()
 {
@@ -148,21 +179,7 @@ void initializeState()
   clearCounters();
 }
 
-int readSerial(char *buffer)
-{
 
-  int count = 0;
-
-  while (Serial.available())
-    buffer[count++] = Serial.read();
-
-  return count;
-}
-
-void writeSerial(const char *buffer, int len)
-{
-  Serial.write(buffer, len);
-}
 
 void handleCommand(TPacket *command)
 {
@@ -170,28 +187,30 @@ void handleCommand(TPacket *command)
   {
     // For movement commands, param[0] = distance, param[1] = speed.
     case COMMAND_FORWARD:
-      sendOK();
       forward((float)command->params[0]);
+      sendOK();
       break;
 
     case COMMAND_REVERSE:
-      sendOK();
       reverse((float)command->params[0]);
+      sendOK();
       break;
 
     case COMMAND_TURN_LEFT:
-      sendOK();
+      
       left((float)command->params[0]);
+      sendOK();
       break;
 
     case COMMAND_TURN_RIGHT:
-      sendOK();
+      
       right((float)command->params[0]);
+      sendOK();
       break;
 
     case COMMAND_STOP:
-      sendOK();
       stop();
+      sendOK();
       break;
 
     case COMMAND_GET_STATS:
@@ -199,7 +218,7 @@ void handleCommand(TPacket *command)
       break;
 
     case COMMAND_CLEAR_STATS:
-      clearOneCounter(command->params[0]);
+//      clearOneCounter(command->params[0]);
       sendOK();
       break;
 
