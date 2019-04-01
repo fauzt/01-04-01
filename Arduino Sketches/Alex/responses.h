@@ -82,13 +82,7 @@ void sendBadResponse()
 	sendResponse(&badResponse);
 }
 
-void sendOK()
-{
-	TPacket okPacket;
-	okPacket.packetType = PACKET_TYPE_RESPONSE;
-	okPacket.command = RESP_OK;
-	sendResponse(&okPacket);
-}
+
 
 
 #endif

@@ -18,6 +18,42 @@ volatile unsigned long leftturnticks;
 volatile unsigned long rightturnticks;
 
 /*
+send ok function with status
+*/
+void sendOK()
+{
+	TPacket okPacket;
+	okPacket.packetType = PACKET_TYPE_RESPONSE;
+	okPacket.command = RESP_OK;
+	okPacket.params[0] = forwardticks;
+  okPacket.params[1] = reverseticks;
+  okPacket.params[2] = leftturnticks;
+  okPacket.params[3] = rightturnticks;
+  okPacket.params[4] = forwarddist;
+  okPacket.params[5] = reversedist;
+  okPacket.params[6] = leftangdist;
+  okPacket.params[7] = rightangdist;
+	sendResponse(&okPacket);
+}
+
+void sendStatus()
+{
+  TPacket statusPacket;
+  statusPacket.packetType = PACKET_TYPE_RESPONSE;
+  statusPacket.command = RESP_STATUS;
+  statusPacket.params[0] = forwardticks;
+  statusPacket.params[1] = reverseticks;
+  statusPacket.params[2] = leftturnticks;
+  statusPacket.params[3] = rightturnticks;
+  statusPacket.params[4] = forwarddist;
+  statusPacket.params[5] = reversedist;
+  statusPacket.params[6] = leftangdist;
+  statusPacket.params[7] = rightangdist;
+
+  sendResponse(&statusPacket);
+}
+
+/*
   ISR functions
 */
 void rightISR()
@@ -67,33 +103,7 @@ void clearCounters()
 /*
   Movement functions
 */
-void sendStatus()
-{
-  // Implement code to send back a packet containing key
-  // information like leftTicks, rightTicks, leftRevs, rightRevs
-  // forwardDist and reverseDist
-  // Use the params array to store this information, and set the
-  // packetType and command files accordingly, then use sendResponse
-  // to send out the packet. See sendMessage on how to use sendResponse.
-  //
-  TPacket statusPacket;
 
-  statusPacket.packetType = PACKET_TYPE_RESPONSE;
-  statusPacket.command = RESP_STATUS;
-
-  //  statusPacket.params[0] = leftForwardTicks;
-  //  statusPacket.params[1] = rightForwardTicks;
-  //  statusPacket.params[2] = leftReverseTicks;
-  //  statusPacket.params[3] = rightReverseTicks;
-  //  statusPacket.params[4] = leftForwardTicksTurns;
-  //  statusPacket.params[5] = rightForwardTicksTurns;
-  //  statusPacket.params[6] = leftReverseTicksTurns;
-  //  statusPacket.params[7] = rightReverseTicksTurns;
-  //  statusPacket.params[8] = forwardDist;
-  //  statusPacket.params[9] = reverseDist;
-
-  sendResponse(&statusPacket);
-}
 
 void stop()
 {
