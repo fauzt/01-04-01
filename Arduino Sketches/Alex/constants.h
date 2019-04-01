@@ -58,11 +58,7 @@ typedef enum
 typedef enum
 {
   COUNTS_PER_REV = 195,
-  WHEEL_CIRC = 20,
-  LEFT_FOR = 5,
-  LEFT_RVR = 6,
-  RIGHT_FOR = 10,
-  RIGHT_RVR = 11,
+  WHEEL_CIRC = 20
 }Motors;
 
 /*

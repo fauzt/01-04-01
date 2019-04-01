@@ -17,6 +17,64 @@ volatile unsigned long reverseticks;
 volatile unsigned long leftturnticks;
 volatile unsigned long rightturnticks;
 
+/*
+  ISR functions
+*/
+void updatecounters()
+{
+  
+  
+  
+  
+}
+void rightISR()
+{
+  if (dir == FORWARD)
+  {
+    forwardticks++;
+    forwarddist = (forwardticks/COUNTS_PER_REV)*20.0;
+  }
+  else if (dir == BACKWARD)
+  {
+    reverseTicks++;
+    reversedist = (reverseticks/COUNTS_PER_REV)*20.0;
+  }
+
+  else if (dir == LEFT)
+  {
+    leftturnticks++;
+    leftangdist = (leftangticks/COUNTS_PER_REV)*20.0;
+  }
+  else if (dir == RIGHT)
+  {
+    rightturnticks++;
+    rightangdist = (rightangticks/COUNTS_PER_REV)*20.0;
+  }
+  updatecounters();
+}
+
+ISR(INT0_vect)
+{
+  leftISR();
+}
+ISR(INT1_vect)
+{
+  rightISR();
+}
+
+void clearCounters()
+{
+  forwardticks = 0;
+  reversedist = 0;
+  forwardticks = 0;
+  reverseticks = 0;
+  leftturnticks = 0;
+  rightturnticks = 0;
+}
+
+/*
+  Movement functions
+*/
 void sendStatus()
 {
   // Implement code to send back a packet containing key
@@ -31,39 +89,27 @@ void sendStatus()
   statusPacket.packetType = PACKET_TYPE_RESPONSE;
   statusPacket.command = RESP_STATUS;
 
-//  statusPacket.params[0] = leftForwardTicks;
-//  statusPacket.params[1] = rightForwardTicks;
-//  statusPacket.params[2] = leftReverseTicks;
-//  statusPacket.params[3] = rightReverseTicks;
-//  statusPacket.params[4] = leftForwardTicksTurns;
-//  statusPacket.params[5] = rightForwardTicksTurns;
-//  statusPacket.params[6] = leftReverseTicksTurns;
-//  statusPacket.params[7] = rightReverseTicksTurns;
-//  statusPacket.params[8] = forwardDist;
-//  statusPacket.params[9] = reverseDist;
+  //  statusPacket.params[0] = leftForwardTicks;
+  //  statusPacket.params[1] = rightForwardTicks;
+  //  statusPacket.params[2] = leftReverseTicks;
+  //  statusPacket.params[3] = rightReverseTicks;
+  //  statusPacket.params[4] = leftForwardTicksTurns;
+  //  statusPacket.params[5] = rightForwardTicksTurns;
+  //  statusPacket.params[6] = leftReverseTicksTurns;
+  //  statusPacket.params[7] = rightReverseTicksTurns;
+  //  statusPacket.params[8] = forwardDist;
+  //  statusPacket.params[9] = reverseDist;
 
   sendResponse(&statusPacket);
-}
-
-
-
-void clearCounters()
-{
-  forwardticks = 0;
-  reversedist = 0;
-  forwardticks = 0;
-  reverseticks = 0;
-  leftturnticks = 0;
-  rightturnticks = 0;
 }
 
 void stop()
 {
   dir = STOP;
-  analogWrite(LEFT_FOR, 0);
-  analogWrite(RIGHT_FOR, 0);
-  analogWrite(LEFT_RVR, 0);
-  analogWrite(RIGHT_RVR, 0);
+  OCR0A = 0;
+  OCR1B = 0;
+  OCR2A = 0;
+  OCR0B = 0;
 }
 
 bool forward(float dist)
@@ -73,11 +119,11 @@ bool forward(float dist)
   long dist_now = forwarddist;
   while (forwarddist <= targetdist)
   {
-    //if(ultrasonic <= FAILSAFE)
+    //if(ultrasonic >= FAILSAFE)
     //{
-    int val = map(forwarddist, dist_now, targetdist, 0, (long)255 * (MAX_POWER / 100.0));
-    analogWrite(LEFT_FOR, val);
-    analogWrite(RIGHT_FOR, val);
+    int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
+    OCR0A = val;
+    OCR1B = val;
     //}
     // else
     // {
@@ -96,11 +142,11 @@ bool reverse(float dist)
   long dist_now = reversedist;
   while (reversedist <= targetdist)
   {
-    //if(ultrasonic <= FAILSAFE)
+    //if(ultrasonic >= FAILSAFE)
     //{
-    int val = map(forwarddist, dist_now, targetdist, 0, (long)255 * (MAX_POWER / 100.0));
-    analogWrite(LEFT_RVR, val);
-    analogWrite(RIGHT_RVR, val);
+    int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
+    OCR2A = val;
+    OCR0B = val;
     //}
     // else
     // {
@@ -119,11 +165,11 @@ bool right(float ang)
   long dist_now = rightangdist;
   while (rightangdist <= targetang)
   {
-    //if(ultrasonic <= FAILSAFE)
+    //if(ultrasonic >= FAILSAFE)
     //{
-    int val = map(rightangdist, dist_now, targetang, 0, (long)255 * (MAX_POWER / 100.0));
-    analogWrite(LEFT_FOR, val);
-    analogWrite(RIGHT_RVR, val);
+    int val = map(rightangdist, dist_now, targetang, (long)255 * (MAX_POWER / 100.0), 0);
+    OCR0A = val;
+    OCR0B = val;
     //}
     // else
     // {
@@ -142,11 +188,11 @@ bool left(float ang)
   long dist_now = leftangdist;
   while (leftangdist <= targetang)
   {
-    //if(ultrasonic <= FAILSAFE)
+    //if(ultrasonic >= FAILSAFE)
     //{
-    int val = map(leftangdist, dist_now, targetang, 0, (long)255 * (MAX_POWER / 100.0));
-    analogWrite(RIGHT_FOR, val);
-    analogWrite(LEFT_RVR, val);
+    int val = map(leftangdist, dist_now, targetang, (long)255 * (MAX_POWER / 100.0), 0);
+    OCR1B = val;
+    OCR2A = val;
     //}
     // else
     // {
@@ -158,6 +204,9 @@ bool left(float ang)
   return true;
 }
 
+/*
+Packet Handlers
+*/
 TResult readPacket(TPacket *packet)
 {
   // Reads in data from the serial port and
@@ -179,51 +228,49 @@ void initializeState()
   clearCounters();
 }
 
-
-
 void handleCommand(TPacket *command)
 {
   switch (command->command)
   {
-    // For movement commands, param[0] = distance, param[1] = speed.
-    case COMMAND_FORWARD:
-      forward((float)command->params[0]);
-      sendOK();
-      break;
+  // For movement commands, param[0] = distance, param[1] = speed.
+  case COMMAND_FORWARD:
+    forward((float)command->params[0]);
+    sendOK();
+    break;
 
-    case COMMAND_REVERSE:
-      reverse((float)command->params[0]);
-      sendOK();
-      break;
+  case COMMAND_REVERSE:
+    reverse((float)command->params[0]);
+    sendOK();
+    break;
 
-    case COMMAND_TURN_LEFT:
-      
-      left((float)command->params[0]);
-      sendOK();
-      break;
+  case COMMAND_TURN_LEFT:
 
-    case COMMAND_TURN_RIGHT:
-      
-      right((float)command->params[0]);
-      sendOK();
-      break;
+    left((float)command->params[0]);
+    sendOK();
+    break;
 
-    case COMMAND_STOP:
-      stop();
-      sendOK();
-      break;
+  case COMMAND_TURN_RIGHT:
 
-    case COMMAND_GET_STATS:
-      sendStatus();
-      break;
+    right((float)command->params[0]);
+    sendOK();
+    break;
 
-    case COMMAND_CLEAR_STATS:
-//      clearOneCounter(command->params[0]);
-      sendOK();
-      break;
+  case COMMAND_STOP:
+    stop();
+    sendOK();
+    break;
 
-    default:
-      sendBadCommand();
+  case COMMAND_GET_STATS:
+    sendStatus();
+    break;
+
+  case COMMAND_CLEAR_STATS:
+    //      clearOneCounter(command->params[0]);
+    sendOK();
+    break;
+
+  default:
+    sendBadCommand();
   }
 }
 
@@ -231,17 +278,17 @@ void handlePacket(TPacket *packet)
 {
   switch (packet->packetType)
   {
-    case PACKET_TYPE_COMMAND:
-      handleCommand(packet);
-      break;
-    case PACKET_TYPE_RESPONSE:
-      break;
-    case PACKET_TYPE_ERROR:
-      break;
-    case PACKET_TYPE_MESSAGE:
-      break;
-    case PACKET_TYPE_HELLO:
-      break;
+  case PACKET_TYPE_COMMAND:
+    handleCommand(packet);
+    break;
+  case PACKET_TYPE_RESPONSE:
+    break;
+  case PACKET_TYPE_ERROR:
+    break;
+  case PACKET_TYPE_MESSAGE:
+    break;
+  case PACKET_TYPE_HELLO:
+    break;
   }
 }
 

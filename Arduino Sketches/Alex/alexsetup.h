@@ -34,14 +34,24 @@ void startSerial()
 }
 void setupMotors()
 {
-	/* Our motor set up is:
-        A1IN - Pin 5, PD5, OC0B
-        A2IN - Pin 6, PD6, OC0A
-        B1IN - Pin 10, PB2, OC1B
-        B2In - pIN 11, PB3, OC2A
-  */
+	DDRB |= 0b00001100;
+	DDRD |= 0b01100000;
 }
 void startMotors()
 {
+	TCNT0 = 0;
+  TCNT1 = 0;
+  TCNT2 = 0;
+	OCR0A = 0;
+	OCR0B = 0;
+	OCR1B = 0;
+	OCR2A = 0;
+	TCCR0A = 0b10100001;
+	TCCR1A = 0b10100001;
+	TCCR2A = 0b10100001;
+	TIMSK0 = 0b110;
+	TCCR0B = 0b00000001;
+	TCCR1B = 0b00000001;
+	TCCR2B = 0b00000001;
 }
 #endif
