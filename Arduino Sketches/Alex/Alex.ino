@@ -20,13 +20,6 @@ volatile unsigned long rightturnticks;
 /*
   ISR functions
 */
-void updatecounters()
-{
-  
-  
-  
-  
-}
 void rightISR()
 {
   if (dir == FORWARD)
@@ -36,26 +29,25 @@ void rightISR()
   }
   else if (dir == BACKWARD)
   {
-    reverseTicks++;
+    reverseticks++;
     reversedist = (reverseticks/COUNTS_PER_REV)*20.0;
   }
 
   else if (dir == LEFT)
   {
     leftturnticks++;
-    leftangdist = (leftangticks/COUNTS_PER_REV)*20.0;
+    leftangdist = (leftturnticks/COUNTS_PER_REV)*20.0;
   }
   else if (dir == RIGHT)
   {
     rightturnticks++;
-    rightangdist = (rightangticks/COUNTS_PER_REV)*20.0;
+    rightangdist = (rightturnticks/COUNTS_PER_REV)*20.0;
   }
-  updatecounters();
 }
 
 ISR(INT0_vect)
 {
-  leftISR();
+//  leftISR();
 }
 ISR(INT1_vect)
 {
