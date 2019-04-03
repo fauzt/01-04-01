@@ -32,6 +32,7 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 
 #include <LSM6.h>
 #include <LIS3MDL.h>
+#include "Global.h"
 
 LSM6 gyro_acc;
 LIS3MDL mag;
@@ -156,4 +157,3 @@ void Read_Compass()
   magnetom_z = SENSOR_SIGN[8] * compass.m.z;
 #endif
 }
-

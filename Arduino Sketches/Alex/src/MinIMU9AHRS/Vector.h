@@ -28,6 +28,11 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#ifndef Vector_h
+#define Vector_h
+
+#include "Global.h"
+
 //Computes the dot product of two vectors
 float Vector_Dot_Product(float vector1[3],float vector2[3])
 {
@@ -66,5 +71,4 @@ void Vector_Add(float vectorOut[3],float vectorIn1[3], float vectorIn2[3])
   }
 }
 
-
-
+#endif

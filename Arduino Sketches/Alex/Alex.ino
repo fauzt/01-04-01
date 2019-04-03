@@ -5,6 +5,8 @@
 #include "alexsetup.h"
 #include "responses.h"
 
+#include "src/MinIMU9AHRS/MinIMU9AHRS.h"
+
 volatile TDirection dir = STOP;
 //stores forward/reverse distance travelled
 volatile unsigned long forwarddist;
@@ -304,11 +306,14 @@ void setup()
   startMotors();
   enablePullups();
   initializeState();
+  setupGyro();
   sei();
 }
 
 void loop()
 {
+  loopGyro();
+  
   TPacket recvPacket;
   TResult result = readPacket(&recvPacket);
 

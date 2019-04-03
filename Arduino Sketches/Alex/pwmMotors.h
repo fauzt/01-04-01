@@ -1,3 +1,5 @@
+//A1:5, A2:6, B1:11, B2:10
+
 void setupMotors() {
 
   DDRB |= 0b00001100;
