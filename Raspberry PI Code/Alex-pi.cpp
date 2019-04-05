@@ -42,6 +42,7 @@ void handleStatus(TPacket *packet)
 	printf("Reverse Distance:\t%d\n", packet->params[5]);
 	printf("Left Turn Distance:\t%d\n", packet->params[6]);
 	printf("Right Turn Distance:\t%d\n", packet->params[7]);
+	printf("Angle from reference:\t%d\n", packet->params[8]);
 	printf("\n---------------------------------------\n\n");
 }
 
@@ -59,8 +60,24 @@ void handleResponse(TPacket *packet)
 		printf("Reverse Distance:\t%d\n", packet->params[5]);
 		printf("Left Turn Distance:\t%d\n", packet->params[6]);
 		printf("Right Turn Distance:\t%d\n", packet->params[7]);
+		printf("Angle from reference:\t%d\n", packet->params[8]);
+		printf("\n---------------------------------------\n\n");
 		printf("Command OK\n");
-		bre;
+		break;
+
+	case RESP_FAILSAFE:
+		printf("Forward Ticks:\t\t%d\n", packet->params[0]);
+		printf("Reverse Ticks:\t\t%d\n", packet->params[1]);
+		printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
+		printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
+		printf("Forward Distance:\t%d\n", packet->params[4]);
+		printf("Reverse Distance:\t%d\n", packet->params[5]);
+		printf("Left Turn Distance:\t%d\n", packet->params[6]);
+		printf("Right Turn Distance:\t%d\n", packet->params[7]);
+		printf("Angle from reference:\t%d\n", packet->params[8]);
+		printf("\n---------------------------------------\n\n");
+		printf("Failsafe Activated!!!!!!!!!\n");
+		break;
 
 	case RESP_STATUS:
 		handleStatus(packet);

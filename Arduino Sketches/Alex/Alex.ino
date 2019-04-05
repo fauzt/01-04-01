@@ -18,11 +18,13 @@ volatile unsigned long forwardticks;
 volatile unsigned long reverseticks;
 volatile unsigned long leftturnticks;
 volatile unsigned long rightturnticks;
+volatile unsigned long angle_from_ref;
+volatile unsigned long obj_color; // 0 for red, 1 for green, 2 for confused
 
 /*
 send ok function with status
 */
-void sendOK()
+void sendOK(bool failsafe)
 {
 	TPacket okPacket;
 	okPacket.packetType = PACKET_TYPE_RESPONSE;
@@ -35,6 +37,11 @@ void sendOK()
   okPacket.params[5] = reversedist;
   okPacket.params[6] = leftangdist;
   okPacket.params[7] = rightangdist;
+  okPacket.params[8] = angle_from_ref;
+  if(!failsafe)
+  {
+    okPacket.command = RESP_FAILSAFE;
+  }
 	sendResponse(&okPacket);
 }
 
@@ -51,7 +58,7 @@ void sendStatus()
   statusPacket.params[5] = reversedist;
   statusPacket.params[6] = leftangdist;
   statusPacket.params[7] = rightangdist;
-
+  statusPacket.params[8] = angle_from_ref;
   sendResponse(&statusPacket);
 }
 
@@ -83,9 +90,14 @@ void rightISR()
   }
 }
 
+/*TODO:
+  Do the ultrasonic scanning for failsafe in either Left/Right ISRs  
+*/
+
 ISR(INT0_vect)
 {
 //  leftISR();
+
 }
 ISR(INT1_vect)
 {
@@ -104,8 +116,10 @@ void clearCounters()
 
 /*
   Movement functions
+  all movement functions will return true if 
+  successful movemnet and return false if 
+  failsafe has been triggered
 */
-
 
 void stop()
 {
@@ -115,6 +129,7 @@ void stop()
   OCR2A = 0;
   OCR0B = 0;
 }
+
 
 bool forward(float dist)
 {
@@ -234,34 +249,51 @@ void initializeState()
 
 void handleCommand(TPacket *command)
 {
+  bool all_good = true;
   switch (command->command)
   {
   // For movement commands, param[0] = distance, param[1] = speed.
   case COMMAND_FORWARD:
-    forward((float)command->params[0]);
-    sendOK();
+    all_good = forward((float)command->params[0]);
+    /*TODO:
+      Check front facing ultrasonic and check for color
+      if and only if something is in front of ALEX
+    */
+    sendOK(all_good);
     break;
 
   case COMMAND_REVERSE:
-    reverse((float)command->params[0]);
-    sendOK();
+    all_good = reverse((float)command->params[0]);
+    /*TODO:
+      Check front facing ultrasonic and check for color
+      if and only if something is in front of ALEX
+    */
+    sendOK(all_good);
     break;
 
   case COMMAND_TURN_LEFT:
 
-    left((float)command->params[0]);
-    sendOK();
+    all_good = left((float)command->params[0]);
+    /*TODO:
+      Check front facing ultrasonic and check for color
+      if and only if something is in front of ALEX
+    */
+    sendOK(all_good);
     break;
 
   case COMMAND_TURN_RIGHT:
 
-    right((float)command->params[0]);
-    sendOK();
+    all_good = right((float)command->params[0]);
+    /*TODO:
+      Check front facing ultrasonic and check for color
+      if and only if something is in front of ALEX
+    */
+    sendOK(all_good);
     break;
 
   case COMMAND_STOP:
     stop();
-    sendOK();
+    sendOK(all_good);
     break;
 
   case COMMAND_GET_STATS:
@@ -270,7 +302,7 @@ void handleCommand(TPacket *command)
 
   case COMMAND_CLEAR_STATS:
     //      clearOneCounter(command->params[0]);
-    sendOK();
+    sendOK(all_good);
     break;
 
   default:
