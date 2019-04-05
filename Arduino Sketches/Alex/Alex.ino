@@ -316,15 +316,15 @@ bool right(float ang)
   /*TODO:
     change using gyroscope for target/current angle measurements
   */
-  long targetang = rightangdist + ang;
-  long dist_now = rightangdist;
-  while (rightangdist <= targetang)
+  long targetang = ToDeg(yaw) + ang; //angular reference from gyro
+  while (ToDeg(yaw) <= targetang)
   {
     //if(ultrasonic >= FAILSAFE)
     //{
-    int val = map(rightangdist, dist_now, targetang, (long)255 * (MAX_POWER / 100.0), 0);
+    int val = map(rightangdist, (long)ToDeg(yaw), targetang, (long)255 * (MAX_POWER / 100.0), 0);
     OCR0A = val;
     OCR0B = val;
+    loopGyro();
     //}
     // else
     // {
@@ -342,15 +342,15 @@ bool left(float ang)
   /*TODO:
     change using gyroscope for target/current angle measurements
   */
-  long targetang = leftangdist + ang;
-  long dist_now = leftangdist;
-  while (leftangdist <= targetang)
+  long targetang = ToDeg(yaw) - ang;
+  while (ToDeg(yaw) <= targetang)
   {
     //if(ultrasonic >= FAILSAFE)
     //{
-    int val = map(leftangdist, dist_now, targetang, (long)255 * (MAX_POWER / 100.0), 0);
+    int val = map(leftangdist, (long)ToDeg(yaw), targetang, (long)255 * (MAX_POWER / 100.0), 0);
     OCR1B = val;
     OCR2A = val;
+    loopGyro();
     //}
     // else
     // {
