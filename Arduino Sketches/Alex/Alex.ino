@@ -78,6 +78,10 @@ void rightISR()
     reversedist = (reverseticks/COUNTS_PER_REV)*20.0;
   }
 
+  /*TODO:
+    Change LEFT and RIGHT ticks for turning
+    to update the gyro angle instead
+  */
   else if (dir == LEFT)
   {
     leftturnticks++;
@@ -180,6 +184,9 @@ bool reverse(float dist)
 bool right(float ang)
 {
   dir = RIGHT;
+  /*TODO:
+    change using gyroscope for target/current angle measurements
+  */
   long targetang = rightangdist + ang;
   long dist_now = rightangdist;
   while (rightangdist <= targetang)
@@ -203,6 +210,9 @@ bool right(float ang)
 bool left(float ang)
 {
   dir = LEFT;
+  /*TODO:
+    change using gyroscope for target/current angle measurements
+  */
   long targetang = leftangdist + ang;
   long dist_now = leftangdist;
   while (leftangdist <= targetang)
