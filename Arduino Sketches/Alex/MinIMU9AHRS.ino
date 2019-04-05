@@ -28,36 +28,8 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// Uncomment the following line to use a MinIMU-9 v5 or AltIMU-10 v5. Leave commented for older IMUs (up through v4).
-#define IMU_V5
-
-// Uncomment the below line to use this axis definition:
-   // X axis pointing forward
-   // Y axis pointing to the right
-   // and Z axis pointing down.
-// Positive pitch : nose up
-// Positive roll : right wing down
-// Positive yaw : clockwise
-int SENSOR_SIGN[9] = {1,1,1,-1,-1,-1,1,1,1}; //Correct directions x,y,z - gyro, accelerometer, magnetometer
-// Uncomment the below line to use this axis definition:
-   // X axis pointing forward
-   // Y axis pointing to the left
-   // and Z axis pointing up.
-// Positive pitch : nose down
-// Positive roll : right wing down
-// Positive yaw : counterclockwise
-//int SENSOR_SIGN[9] = {1,-1,-1,-1,1,1,1,-1,-1}; //Correct directions x,y,z - gyro, accelerometer, magnetometer
-
-// tested with Arduino Uno with ATmega328 and Arduino Duemilanove with ATMega168
 
 #include <Wire.h>
-#include "Global.h"
-#include "Compass.h"
-#include "DCM.h"
-#include "I2C.h"
-#include "Output.h"
-#include "Vector.h"
-#include "matrix.h"
 
 void setupGyro()
 {
@@ -85,10 +57,6 @@ void setupGyro()
     AN_OFFSET[y] = AN_OFFSET[y]/32;
 
   AN_OFFSET[5]-=GRAVITY*SENSOR_SIGN[5];
-
-  //Serial.println("Offset:");
-  for(int y=0; y<6; y++) 
-    Serial.println(AN_OFFSET[y]);
 
   delay(2000);
 
@@ -133,8 +101,6 @@ void loopGyro() //Main Loop
     Drift_correction();
     Euler_angles();
     // ***
-
-    printdata();
   }
 
 }

@@ -28,8 +28,6 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "Global.h"
-
 void Compass_Heading()
 {
   float MAG_X;

@@ -30,11 +30,6 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 
 /**************************************************/
 
-#ifndef matrix_h
-#define matrix_h
-
-#include "Global.h"
-
 //Multiply two 3x3 matrixs. This function developed by Jordi can be easily adapted to multiple n*n matrix's. (Pero me da flojera!). 
 void Matrix_Multiply(float a[3][3], float b[3][3], float mat[3][3])
 {
@@ -51,5 +46,3 @@ void Matrix_Multiply(float a[3][3], float b[3][3], float mat[3][3])
     }
   }
 }
-
-#endif

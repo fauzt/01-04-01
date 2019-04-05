@@ -28,8 +28,6 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "Global.h"
-
 void printdata(void)
 {   
       #if PRINT_EULER == 1
