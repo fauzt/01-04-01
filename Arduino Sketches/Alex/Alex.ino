@@ -20,6 +20,8 @@ volatile unsigned long leftturnticks;
 volatile unsigned long rightturnticks;
 volatile unsigned long obj_color; // 0 for red, 1 for green, 2 for confused
 
+volatile unsigned long ultra_dist;
+
 /*-----------------------------GYRO Definitions & variables-------------------------------*/
 
 // Uncomment the following line to use a MinIMU-9 v5 or AltIMU-10 v5. Leave commented for older IMUs (up through v4).
@@ -148,6 +150,20 @@ float Temporary_Matrix[3][3]={
 
 /*-------------------------------End of GYRO Definitions & variables---------------------------------------*/
 
+/*----------------------------------COLOUR Definitions & variables-----------------------------------------*/
+
+// Stores frequency read by the photodiodes
+int redFrequency = 0;
+int greenFrequency = 0;
+int blueFrequency = 0;
+
+// Stores the red. green and blue colors
+int redColor = 0;
+int greenColor = 0;
+int blueColor = 0;
+
+ 
+/*----------------------------------------------------------------------------------------------------------*/
 
 
 /*
@@ -167,6 +183,7 @@ void sendOK(bool failsafe)
   okPacket.params[6] = leftangdist;
   okPacket.params[7] = rightangdist;
   okPacket.params[8] = (unsigned long)ToDeg(yaw + 180);
+  
   if(!failsafe)
   {
     okPacket.command = RESP_FAILSAFE;
@@ -187,7 +204,7 @@ void sendStatus()
   statusPacket.params[5] = reversedist;
   statusPacket.params[6] = leftangdist;
   statusPacket.params[7] = rightangdist;
-  statusPacket.params[8] = (unsigned long)ToDeg(yaw + 180); //yaw from gyro reading
+  statusPacket.params[8] = (unsigned long)ToDeg(yaw + 180);
   sendResponse(&statusPacket);
 }
 
@@ -211,6 +228,8 @@ void rightISR()
     Change LEFT and RIGHT ticks for turning
     to update the gyro angle instead
   */
+
+  /* Obsolete. Using gyro data now instead of encoders
   else if (dir == LEFT)
   {
     leftturnticks++;
@@ -221,11 +240,8 @@ void rightISR()
     rightturnticks++;
     rightangdist = (rightturnticks/COUNTS_PER_REV)*20.0;
   }
+  */
 }
-
-/*TODO:
-  Do the ultrasonic scanning for failsafe in either Left/Right ISRs  
-*/
 
 ISR(INT0_vect)
 {
@@ -271,19 +287,21 @@ bool forward(float dist)
   long dist_now = forwarddist;
   while (forwarddist <= targetdist)
   {
-    //if(ultrasonic >= FAILSAFE)
-    //{
+    if(ultra_dist >= FAILSAFE)
+    {
     int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
     OCR0A = val;
     OCR1B = val;
-    //}
-    // else
-    // {
-    // 	stop();
-    // 	return false;
-    // }
+    ultra_dist = loopUSensor();
+    }
+    else
+    {
+     	stop();
+     	return false;
+    }
   }
   stop();
+  scanColour();
   return true;
 }
 
@@ -294,17 +312,18 @@ bool reverse(float dist)
   long dist_now = reversedist;
   while (reversedist <= targetdist)
   {
-    //if(ultrasonic >= FAILSAFE)
-    //{
+    if(ultra_dist >= FAILSAFE)
+    {
     int val = map(reversedist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
     OCR2A = val;
     OCR0B = val;
-    //}
-    // else
-    // {
-    // 	stop();
-    // 	return false;
-    // }
+    ultra_dist = loopUSensor();
+    }
+    else
+    {
+     	stop();
+     	return false;
+    }
   }
   stop();
   return true;
@@ -323,18 +342,19 @@ bool right(float ang)
   
   while (ToDeg(yaw + 180) <= targetang)
   {
-    //if(ultrasonic >= FAILSAFE)
-    //{
+    if(ultra_dist >= FAILSAFE)
+    {
     int val = map((long)ToDeg(yaw + 180), initial_ang, targetang, (long)255 * (MAX_POWER / 100.0), (long)255 * (10.0 / 100.0));
     OCR0A = val;
     OCR0B = val;
     loopGyro();
-    //}
-    // else
-    // {
-    // 	stop();
-    // 	return false;
-    // }
+    ultra_dist = loopUSensor();
+    }
+    else
+    {
+     	stop();
+     	return false;
+    }
   }
   stop();
   return true;
@@ -344,7 +364,7 @@ bool left(float ang)
 {
   dir = LEFT;
   /*TODO:
-    change using gyroscope for target/current angle measurements
+    map current angle values for corner case [ example: turn 60deg from 30deg to 330deg anticlockwise ]
   */
 
   long initial_ang = (long) ToDeg(yaw + 180); //angular reference from gyro
@@ -356,22 +376,29 @@ bool left(float ang)
   
   while (ToDeg(yaw) <= targetang)
   {
-    //if(ultrasonic >= FAILSAFE)
-    //{
+    if(ultra_dist >= FAILSAFE)
+    {
     int val = map((long)ToDeg(yaw + 180), initial_ang, targetang, (long)255 * (MAX_POWER / 100.0), (long)255 * (10.0 / 100.0)); // (value to map, minrange, maxrange, max_power_range, min_power_range)
     OCR1B = val;
     OCR2A = val;
     loopGyro();
-    //}
-    // else
-    // {
-    // 	stop();
-    // 	return false;
-    // }
+    ultra_dist = loopUSensor();
+    }
+    else
+    {
+     	stop();
+     	return false;
+    }
   }
   stop();
   return true;
 }
+
+/* Activate colour sensor */
+void scanColour(){
+  loopColour();  
+}
+
 
 /*
 Packet Handlers
@@ -424,20 +451,12 @@ void handleCommand(TPacket *command)
   case COMMAND_TURN_LEFT:
 
     all_good = left((float)command->params[0]);
-    /*TODO:
-      Check front facing ultrasonic and check for color
-      if and only if something is in front of ALEX
-    */
     sendOK(all_good);
     break;
 
   case COMMAND_TURN_RIGHT:
 
     all_good = right((float)command->params[0]);
-    /*TODO:
-      Check front facing ultrasonic and check for color
-      if and only if something is in front of ALEX
-    */
     sendOK(all_good);
     break;
 
@@ -454,6 +473,11 @@ void handleCommand(TPacket *command)
     //      clearOneCounter(command->params[0]);
     sendOK(all_good);
     break;
+
+
+  //TODO: Insert scan colour command
+  // all_good = scanColour();
+  // send RGB value (redColour, greenColour, blueColour
 
   default:
     sendBadCommand();
@@ -484,11 +508,14 @@ void setup()
   setupEINT();
   setupSerial();
   startSerial();
+  setupGyro();
+  setupUSensor();
+  setupColour();
   setupMotors();
   startMotors();
   enablePullups();
   initializeState();
-  setupGyro();
+  
   sei();
 }
 
