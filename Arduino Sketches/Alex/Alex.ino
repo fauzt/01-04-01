@@ -129,30 +129,18 @@ unsigned int counter = 0;
 byte gyro_sat = 0;
 
 float DCM_Matrix[3][3] = {
-  {
-    1, 0, 0
-  }
-  , {
-    0, 1, 0
-  }
-  , {
-    0, 0, 1
-  }
-};
-float Update_Matrix[3][3] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}}; //Gyros here
-
+  {1, 0, 0},
+  {0, 1, 0},
+  {0, 0, 1}};
+float Update_Matrix[3][3] = {
+  {0, 1, 2},
+  {3, 4, 5},
+  {6, 7, 8}}; //Gyros here
 
 float Temporary_Matrix[3][3] = {
-  {
-    0, 0, 0
-  }
-  , {
-    0, 0, 0
-  }
-  , {
-    0, 0, 0
-  }
-};
+  {0, 0, 0},
+  {0, 0, 0},
+  {0, 0, 0}};
 
 /*-------------------------------End of GYRO Definitions & variables---------------------------------------*/
 
@@ -167,7 +155,6 @@ int blueFrequency = 0;
 int redColor = 0;
 int greenColor = 0;
 int blueColor = 0;
-
 
 /*----------------------------------------------------------------------------------------------------------*/
 
@@ -230,23 +217,6 @@ void rightISR()
     reversedist = (reverseticks / COUNTS_PER_REV) * 20.0;
   }
 
-  /*TODO:
-    Change LEFT and RIGHT ticks for turning
-    to update the gyro angle instead
-  */
-
-  /* Obsolete. Using gyro data now instead of encoders
-    else if (dir == LEFT)
-    {
-    leftturnticks++;
-    leftangdist = (leftturnticks/COUNTS_PER_REV)*20.0;
-    }
-    else if (dir == RIGHT)
-    {
-    rightturnticks++;
-    rightangdist = (rightturnticks/COUNTS_PER_REV)*20.0;
-    }
-  */
 }
 
 ISR(INT0_vect)
@@ -546,7 +516,6 @@ void setup()
   startMotors();
   enablePullups();
   initializeState();
-
   sei();
 }
 
