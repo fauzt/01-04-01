@@ -36,12 +36,12 @@ void handleStatus(TPacket *packet)
 	printf("\n ------- ALEX STATUS REPORT ------- \n\n");
 	printf("Forward Ticks:\t\t%d\n", packet->params[0]);
 	printf("Reverse Ticks:\t\t%d\n", packet->params[1]);
-	printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
-	printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
+	// printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
+	// printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
 	printf("Forward Distance:\t%d\n", packet->params[4]);
 	printf("Reverse Distance:\t%d\n", packet->params[5]);
-	printf("Left Turn Distance:\t%d\n", packet->params[6]);
-	printf("Right Turn Distance:\t%d\n", packet->params[7]);
+	// printf("Left Turn Distance:\t%d\n", packet->params[6]);
+	// printf("Right Turn Distance:\t%d\n", packet->params[7]);
 	printf("Angle from reference:\t%d\n", packet->params[8]);
 	printf("\n---------------------------------------\n\n");
 }
@@ -54,12 +54,12 @@ void handleResponse(TPacket *packet)
 	case RESP_OK:
 		printf("Forward Ticks:\t\t%d\n", packet->params[0]);
 		printf("Reverse Ticks:\t\t%d\n", packet->params[1]);
-		printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
-		printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
+		// printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
+		// printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
 		printf("Forward Distance:\t%d\n", packet->params[4]);
 		printf("Reverse Distance:\t%d\n", packet->params[5]);
-		printf("Left Turn Distance:\t%d\n", packet->params[6]);
-		printf("Right Turn Distance:\t%d\n", packet->params[7]);
+		// printf("Left Turn Distance:\t%d\n", packet->params[6]);
+		// printf("Right Turn Distance:\t%d\n", packet->params[7]);
 		printf("Angle from reference:\t%d\n", packet->params[8]);
 		printf("\n---------------------------------------\n\n");
 		printf("Command OK\n");

@@ -169,12 +169,12 @@ void sendOK(bool failsafe)
   okPacket.command = RESP_OK;
   okPacket.params[0] = forwardticks;
   okPacket.params[1] = reverseticks;
-  okPacket.params[2] = leftturnticks;
-  okPacket.params[3] = rightturnticks;
+  // okPacket.params[2] = leftturnticks;
+  // okPacket.params[3] = rightturnticks;
   okPacket.params[4] = forwarddist;
   okPacket.params[5] = reversedist;
-  okPacket.params[6] = leftangdist;
-  okPacket.params[7] = rightangdist;
+  // okPacket.params[6] = leftangdist;
+  // okPacket.params[7] = rightangdist;
   okPacket.params[8] = (unsigned long)ToDeg(yaw + 180);
 
   if (!failsafe)
@@ -191,12 +191,12 @@ void sendStatus()
   statusPacket.command = RESP_STATUS;
   statusPacket.params[0] = forwardticks;
   statusPacket.params[1] = reverseticks;
-  statusPacket.params[2] = leftturnticks;
-  statusPacket.params[3] = rightturnticks;
+  // statusPacket.params[2] = leftturnticks;
+  // statusPacket.params[3] = rightturnticks;
   statusPacket.params[4] = forwarddist;
   statusPacket.params[5] = reversedist;
-  statusPacket.params[6] = leftangdist;
-  statusPacket.params[7] = rightangdist;
+  // statusPacket.params[6] = leftangdist;
+  // statusPacket.params[7] = rightangdist;
   statusPacket.params[8] = (unsigned long)ToDeg(yaw + 180);
   sendResponse(&statusPacket);
 }
