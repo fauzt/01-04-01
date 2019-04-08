@@ -31,7 +31,7 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Wire.h>
 
-void setupGyro()
+void setupGyro() //4180 delay
 {
 
   I2C_Init();

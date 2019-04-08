@@ -84,7 +84,7 @@ int SENSOR_SIGN[9] = {1,1,1,-1,-1,-1,1,1,1}; //Correct directions x,y,z - gyro, 
 #define PRINT_ANALOGS 0 //Will print the analog raw data
 #define PRINT_EULER 1   //Will print the Euler angles Roll, Pitch and Yaw
 
-/* ------------------------------------------------------------------------------ */
+/* ----------------------------------End of GYRO Definitions-------------------------------------------- */
   
 float G_Dt = 0.02;    // Integration time (DCM algorithm)  We will run the integration loop at 50Hz if possible
 
@@ -118,7 +118,7 @@ float Omega[3]= {0,0,0};
 // Euler angles
 float roll;
 float pitch;
-float yaw;
+float yaw; //ranges from -180 to 180
 
 float errorRollPitch[3]= {0,0,0};
 float errorYaw[3]= {0,0,0};
@@ -166,7 +166,7 @@ void sendOK(bool failsafe)
   okPacket.params[5] = reversedist;
   okPacket.params[6] = leftangdist;
   okPacket.params[7] = rightangdist;
-  okPacket.params[8] = (unsigned long)ToDeg(yaw);
+  okPacket.params[8] = (unsigned long)ToDeg(yaw + 180);
   if(!failsafe)
   {
     okPacket.command = RESP_FAILSAFE;
@@ -187,7 +187,7 @@ void sendStatus()
   statusPacket.params[5] = reversedist;
   statusPacket.params[6] = leftangdist;
   statusPacket.params[7] = rightangdist;
-  statusPacket.params[8] = (unsigned long)ToDeg(yaw); //yaw from gyro reading
+  statusPacket.params[8] = (unsigned long)ToDeg(yaw + 180); //yaw from gyro reading
   sendResponse(&statusPacket);
 }
 
@@ -289,14 +289,14 @@ bool forward(float dist)
 
 bool reverse(float dist)
 {
-  dir = FORWARD;
+  dir = BACKWARD;
   long targetdist = reversedist + dist;
   long dist_now = reversedist;
   while (reversedist <= targetdist)
   {
     //if(ultrasonic >= FAILSAFE)
     //{
-    int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
+    int val = map(reversedist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
     OCR2A = val;
     OCR0B = val;
     //}
@@ -313,15 +313,19 @@ bool reverse(float dist)
 bool right(float ang)
 {
   dir = RIGHT;
-  /*TODO:
-    change using gyroscope for target/current angle measurements
-  */
-  long targetang = ToDeg(yaw) + ang; //angular reference from gyro
-  while (ToDeg(yaw) <= targetang)
+
+  long initial_ang = (long) ToDeg(yaw + 180); //angular reference from gyro
+
+  long targetang = initial_ang + ang;
+  if (targetang > 360){
+    targetang = targetang - 360;
+  }
+  
+  while (ToDeg(yaw + 180) <= targetang)
   {
     //if(ultrasonic >= FAILSAFE)
     //{
-    int val = map(rightangdist, (long)ToDeg(yaw), targetang, (long)255 * (MAX_POWER / 100.0), 0);
+    int val = map((long)ToDeg(yaw + 180), initial_ang, targetang, (long)255 * (MAX_POWER / 100.0), (long)255 * (10.0 / 100.0));
     OCR0A = val;
     OCR0B = val;
     loopGyro();
@@ -342,12 +346,19 @@ bool left(float ang)
   /*TODO:
     change using gyroscope for target/current angle measurements
   */
-  long targetang = ToDeg(yaw) - ang;
+
+  long initial_ang = (long) ToDeg(yaw + 180); //angular reference from gyro
+  
+  long targetang = initial_ang - ang;  
+  if (targetang < 0){
+    targetang = targetang + 360;
+  }
+  
   while (ToDeg(yaw) <= targetang)
   {
     //if(ultrasonic >= FAILSAFE)
     //{
-    int val = map(leftangdist, (long)ToDeg(yaw), targetang, (long)255 * (MAX_POWER / 100.0), 0);
+    int val = map((long)ToDeg(yaw + 180), initial_ang, targetang, (long)255 * (MAX_POWER / 100.0), (long)255 * (10.0 / 100.0)); // (value to map, minrange, maxrange, max_power_range, min_power_range)
     OCR1B = val;
     OCR2A = val;
     loopGyro();
