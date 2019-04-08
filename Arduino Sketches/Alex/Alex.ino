@@ -28,17 +28,17 @@ volatile unsigned long ultra_dist;
 #define IMU_V5
 
 // Uncomment the below line to use this axis definition:
-   // X axis pointing forward
-   // Y axis pointing to the right
-   // and Z axis pointing down.
+// X axis pointing forward
+// Y axis pointing to the right
+// and Z axis pointing down.
 // Positive pitch : nose up
 // Positive roll : right wing down
 // Positive yaw : clockwise
-int SENSOR_SIGN[9] = {1,1,1,-1,-1,-1,1,1,1}; //Correct directions x,y,z - gyro, accelerometer, magnetometer
+int SENSOR_SIGN[9] = {1, 1, 1, -1, -1, -1, 1, 1, 1}; //Correct directions x,y,z - gyro, accelerometer, magnetometer
 // Uncomment the below line to use this axis definition:
-   // X axis pointing forward
-   // Y axis pointing to the left
-   // and Z axis pointing up.
+// X axis pointing forward
+// Y axis pointing to the left
+// and Z axis pointing up.
 // Positive pitch : nose down
 // Positive roll : right wing down
 // Positive yaw : counterclockwise
@@ -87,14 +87,14 @@ int SENSOR_SIGN[9] = {1,1,1,-1,-1,-1,1,1,1}; //Correct directions x,y,z - gyro, 
 #define PRINT_EULER 1   //Will print the Euler angles Roll, Pitch and Yaw
 
 /* ----------------------------------End of GYRO Definitions-------------------------------------------- */
-  
+
 float G_Dt = 0.02;    // Integration time (DCM algorithm)  We will run the integration loop at 50Hz if possible
 
 long timer = 0;   //general purpuse timer
 long timer_old;
-long timer24=0; //Second timer used to print values
+long timer24 = 0; //Second timer used to print values
 int AN[6]; //array that stores the gyro and accelerometer data
-int AN_OFFSET[6]={0,0,0,0,0,0}; //Array that stores the Offset of the sensors
+int AN_OFFSET[6] = {0, 0, 0, 0, 0, 0}; //Array that stores the Offset of the sensors
 
 int gyro_x;
 int gyro_y;
@@ -110,42 +110,48 @@ float c_magnetom_y;
 float c_magnetom_z;
 float MAG_Heading;
 
-float Accel_Vector[3]= {0,0,0}; //Store the acceleration in a vector
-float Gyro_Vector[3]= {0,0,0};//Store the gyros turn rate in a vector
-float Omega_Vector[3]= {0,0,0}; //Corrected Gyro_Vector data
-float Omega_P[3]= {0,0,0};//Omega Proportional correction
-float Omega_I[3]= {0,0,0};//Omega Integrator
-float Omega[3]= {0,0,0};
+float Accel_Vector[3] = {0, 0, 0}; //Store the acceleration in a vector
+float Gyro_Vector[3] = {0, 0, 0}; //Store the gyros turn rate in a vector
+float Omega_Vector[3] = {0, 0, 0}; //Corrected Gyro_Vector data
+float Omega_P[3] = {0, 0, 0}; //Omega Proportional correction
+float Omega_I[3] = {0, 0, 0}; //Omega Integrator
+float Omega[3] = {0, 0, 0};
 
 // Euler angles
 float roll;
 float pitch;
 float yaw; //ranges from -180 to 180
 
-float errorRollPitch[3]= {0,0,0};
-float errorYaw[3]= {0,0,0};
+float errorRollPitch[3] = {0, 0, 0};
+float errorYaw[3] = {0, 0, 0};
 
-unsigned int counter=0;
-byte gyro_sat=0;
+unsigned int counter = 0;
+byte gyro_sat = 0;
 
-float DCM_Matrix[3][3]= {
+float DCM_Matrix[3][3] = {
   {
-    1,0,0  }
-  ,{
-    0,1,0  }
-  ,{
-    0,0,1  }
+    1, 0, 0
+  }
+  , {
+    0, 1, 0
+  }
+  , {
+    0, 0, 1
+  }
 };
-float Update_Matrix[3][3]={{0,1,2},{3,4,5},{6,7,8}}; //Gyros here
+float Update_Matrix[3][3] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}}; //Gyros here
 
 
-float Temporary_Matrix[3][3]={
+float Temporary_Matrix[3][3] = {
   {
-    0,0,0  }
-  ,{
-    0,0,0  }
-  ,{
-    0,0,0  }
+    0, 0, 0
+  }
+  , {
+    0, 0, 0
+  }
+  , {
+    0, 0, 0
+  }
 };
 
 /*-------------------------------End of GYRO Definitions & variables---------------------------------------*/
@@ -162,19 +168,19 @@ int redColor = 0;
 int greenColor = 0;
 int blueColor = 0;
 
- 
+
 /*----------------------------------------------------------------------------------------------------------*/
 
 
 /*
-send ok function with status
+  send ok function with status
 */
 void sendOK(bool failsafe)
 {
-	TPacket okPacket;
-	okPacket.packetType = PACKET_TYPE_RESPONSE;
-	okPacket.command = RESP_OK;
-	okPacket.params[0] = forwardticks;
+  TPacket okPacket;
+  okPacket.packetType = PACKET_TYPE_RESPONSE;
+  okPacket.command = RESP_OK;
+  okPacket.params[0] = forwardticks;
   okPacket.params[1] = reverseticks;
   okPacket.params[2] = leftturnticks;
   okPacket.params[3] = rightturnticks;
@@ -183,12 +189,12 @@ void sendOK(bool failsafe)
   okPacket.params[6] = leftangdist;
   okPacket.params[7] = rightangdist;
   okPacket.params[8] = (unsigned long)ToDeg(yaw + 180);
-  
-  if(!failsafe)
+
+  if (!failsafe)
   {
     okPacket.command = RESP_FAILSAFE;
   }
-	sendResponse(&okPacket);
+  sendResponse(&okPacket);
 }
 
 void sendStatus()
@@ -216,12 +222,12 @@ void rightISR()
   if (dir == FORWARD)
   {
     forwardticks++;
-    forwarddist = (forwardticks/COUNTS_PER_REV)*20.0;
+    forwarddist = (forwardticks / COUNTS_PER_REV) * 20.0;
   }
   else if (dir == BACKWARD)
   {
     reverseticks++;
-    reversedist = (reverseticks/COUNTS_PER_REV)*20.0;
+    reversedist = (reverseticks / COUNTS_PER_REV) * 20.0;
   }
 
   /*TODO:
@@ -230,22 +236,22 @@ void rightISR()
   */
 
   /* Obsolete. Using gyro data now instead of encoders
-  else if (dir == LEFT)
-  {
+    else if (dir == LEFT)
+    {
     leftturnticks++;
     leftangdist = (leftturnticks/COUNTS_PER_REV)*20.0;
-  }
-  else if (dir == RIGHT)
-  {
+    }
+    else if (dir == RIGHT)
+    {
     rightturnticks++;
     rightangdist = (rightturnticks/COUNTS_PER_REV)*20.0;
-  }
+    }
   */
 }
 
 ISR(INT0_vect)
 {
-//  leftISR();
+  //  leftISR();
 
 }
 ISR(INT1_vect)
@@ -265,8 +271,8 @@ void clearCounters()
 
 /*
   Movement functions
-  all movement functions will return true if 
-  successful movemnet and return false if 
+  all movement functions will return true if
+  successful movemnet and return false if
   failsafe has been triggered
 */
 
@@ -287,17 +293,17 @@ bool forward(float dist)
   long dist_now = forwarddist;
   while (forwarddist <= targetdist)
   {
-    if(ultra_dist >= FAILSAFE)
+    if (ultra_dist >= FAILSAFE)
     {
-    int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
-    OCR0A = val;
-    OCR1B = val;
-    ultra_dist = loopUSensor();
+      int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
+      OCR0A = val;
+      OCR1B = val;
+      ultra_dist = loopUSensor();
     }
     else
     {
-     	stop();
-     	return false;
+      stop();
+      return false;
     }
   }
   stop();
@@ -312,17 +318,17 @@ bool reverse(float dist)
   long dist_now = reversedist;
   while (reversedist <= targetdist)
   {
-    if(ultra_dist >= FAILSAFE)
+    if (ultra_dist >= FAILSAFE)
     {
-    int val = map(reversedist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
-    OCR2A = val;
-    OCR0B = val;
-    ultra_dist = loopUSensor();
+      int val = map(reversedist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
+      OCR2A = val;
+      OCR0B = val;
+      ultra_dist = loopUSensor();
     }
     else
     {
-     	stop();
-     	return false;
+      stop();
+      return false;
     }
   }
   stop();
@@ -336,24 +342,37 @@ bool right(float ang)
   long initial_ang = (long) ToDeg(yaw + 180); //angular reference from gyro
 
   long targetang = initial_ang + ang;
-  if (targetang > 360){
+  if (targetang > 360) {
     targetang = targetang - 360;
   }
-  
+
   while (ToDeg(yaw + 180) <= targetang)
   {
-    if(ultra_dist >= FAILSAFE)
+    if (ultra_dist >= FAILSAFE)
     {
-    int val = map((long)ToDeg(yaw + 180), initial_ang, targetang, (long)255 * (MAX_POWER / 100.0), (long)255 * (10.0 / 100.0));
-    OCR0A = val;
-    OCR0B = val;
-    loopGyro();
-    ultra_dist = loopUSensor();
+      int val;
+      if (targetang < initial_ang) {
+
+        long mapped_ang = ToDeg(yaw + 180) - initial_ang;
+        if (mapped_ang < 0)
+          mapped_ang = mapped_ang + 360;
+
+        val = map( mapped_ang , 0, ang, (long)255 * (MAX_POWER / 100.0), (long)255 * (10.0 / 100.0));
+              //330 -> 0 -> 30
+      }
+      else {
+        val = map((long)ToDeg(yaw + 180), initial_ang, targetang, (long)255 * (MAX_POWER / 100.0), (long)255 * (10.0 / 100.0));
+      }
+
+      OCR0A = val;
+      OCR0B = val;
+      loopGyro();
+      ultra_dist = loopUSensor();
     }
     else
     {
-     	stop();
-     	return false;
+      stop();
+      return false;
     }
   }
   stop();
@@ -368,26 +387,38 @@ bool left(float ang)
   */
 
   long initial_ang = (long) ToDeg(yaw + 180); //angular reference from gyro
-  
-  long targetang = initial_ang - ang;  
-  if (targetang < 0){
+
+  long targetang = initial_ang - ang;
+  if (targetang < 0) {
     targetang = targetang + 360;
   }
-  
+
   while (ToDeg(yaw) <= targetang)
   {
-    if(ultra_dist >= FAILSAFE)
+    if (ultra_dist >= FAILSAFE)
     {
-    int val = map((long)ToDeg(yaw + 180), initial_ang, targetang, (long)255 * (MAX_POWER / 100.0), (long)255 * (10.0 / 100.0)); // (value to map, minrange, maxrange, max_power_range, min_power_range)
-    OCR1B = val;
-    OCR2A = val;
-    loopGyro();
-    ultra_dist = loopUSensor();
+      int val;
+      if (targetang > initial_ang) {
+        long mapped_ang = initial_ang - ToDeg(yaw + 180);
+        if (mapped_ang < 0)
+          mapped_ang = mapped_ang + 360;
+
+        val = map( mapped_ang , 0, ang, (long)255 * (MAX_POWER / 100.0), (long)255 * (10.0 / 100.0));
+              //30 -> 0 -> 330
+      }
+      else {
+        val = map((long)ToDeg(yaw + 180), initial_ang, targetang, (long)255 * (MAX_POWER / 100.0), (long)255 * (10.0 / 100.0)); // (value to map, minrange, maxrange, max_power_range, min_power_range)
+      }
+
+      OCR1B = val;
+      OCR2A = val;
+      loopGyro();
+      ultra_dist = loopUSensor();
     }
     else
     {
-     	stop();
-     	return false;
+      stop();
+      return false;
     }
   }
   stop();
@@ -395,13 +426,13 @@ bool left(float ang)
 }
 
 /* Activate colour sensor */
-void scanColour(){
-  loopColour();  
+void scanColour() {
+  loopColour();
 }
 
 
 /*
-Packet Handlers
+  Packet Handlers
 */
 TResult readPacket(TPacket *packet)
 {
@@ -429,58 +460,58 @@ void handleCommand(TPacket *command)
   bool all_good = true;
   switch (command->command)
   {
-  // For movement commands, param[0] = distance, param[1] = speed.
-  case COMMAND_FORWARD:
-    all_good = forward((float)command->params[0]);
-    /*TODO:
-      Check front facing ultrasonic and check for color
-      if and only if something is in front of ALEX
-    */
-    sendOK(all_good);
-    break;
+    // For movement commands, param[0] = distance, param[1] = speed.
+    case COMMAND_FORWARD:
+      all_good = forward((float)command->params[0]);
+      /*TODO:
+        Check front facing ultrasonic and check for color
+        if and only if something is in front of ALEX
+      */
+      sendOK(all_good);
+      break;
 
-  case COMMAND_REVERSE:
-    all_good = reverse((float)command->params[0]);
-    /*TODO:
-      Check front facing ultrasonic and check for color
-      if and only if something is in front of ALEX
-    */
-    sendOK(all_good);
-    break;
+    case COMMAND_REVERSE:
+      all_good = reverse((float)command->params[0]);
+      /*TODO:
+        Check front facing ultrasonic and check for color
+        if and only if something is in front of ALEX
+      */
+      sendOK(all_good);
+      break;
 
-  case COMMAND_TURN_LEFT:
+    case COMMAND_TURN_LEFT:
 
-    all_good = left((float)command->params[0]);
-    sendOK(all_good);
-    break;
+      all_good = left((float)command->params[0]);
+      sendOK(all_good);
+      break;
 
-  case COMMAND_TURN_RIGHT:
+    case COMMAND_TURN_RIGHT:
 
-    all_good = right((float)command->params[0]);
-    sendOK(all_good);
-    break;
+      all_good = right((float)command->params[0]);
+      sendOK(all_good);
+      break;
 
-  case COMMAND_STOP:
-    stop();
-    sendOK(all_good);
-    break;
+    case COMMAND_STOP:
+      stop();
+      sendOK(all_good);
+      break;
 
-  case COMMAND_GET_STATS:
-    sendStatus();
-    break;
+    case COMMAND_GET_STATS:
+      sendStatus();
+      break;
 
-  case COMMAND_CLEAR_STATS:
-    //      clearOneCounter(command->params[0]);
-    sendOK(all_good);
-    break;
+    case COMMAND_CLEAR_STATS:
+      //      clearOneCounter(command->params[0]);
+      sendOK(all_good);
+      break;
 
 
-  //TODO: Insert scan colour command
-  // all_good = scanColour();
-  // send RGB value (redColour, greenColour, blueColour
+    //TODO: Insert scan colour command
+    // all_good = scanColour();
+    // send RGB value (redColour, greenColour, blueColour
 
-  default:
-    sendBadCommand();
+    default:
+      sendBadCommand();
   }
 }
 
@@ -488,17 +519,17 @@ void handlePacket(TPacket *packet)
 {
   switch (packet->packetType)
   {
-  case PACKET_TYPE_COMMAND:
-    handleCommand(packet);
-    break;
-  case PACKET_TYPE_RESPONSE:
-    break;
-  case PACKET_TYPE_ERROR:
-    break;
-  case PACKET_TYPE_MESSAGE:
-    break;
-  case PACKET_TYPE_HELLO:
-    break;
+    case PACKET_TYPE_COMMAND:
+      handleCommand(packet);
+      break;
+    case PACKET_TYPE_RESPONSE:
+      break;
+    case PACKET_TYPE_ERROR:
+      break;
+    case PACKET_TYPE_MESSAGE:
+      break;
+    case PACKET_TYPE_HELLO:
+      break;
   }
 }
 
@@ -515,14 +546,14 @@ void setup()
   startMotors();
   enablePullups();
   initializeState();
-  
+
   sei();
 }
 
 void loop()
 {
   loopGyro();
-  
+
   TPacket recvPacket;
   TResult result = readPacket(&recvPacket);
 
