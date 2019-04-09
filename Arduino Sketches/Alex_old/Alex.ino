@@ -19,7 +19,6 @@ volatile unsigned long reverseticks;
 volatile unsigned long leftturnticks;
 volatile unsigned long rightturnticks;
 volatile unsigned long obj_color; // 0 for red, 1 for green, 2 for confused
-
 volatile unsigned long ultra_dist;
 
 /*-----------------------------GYRO Definitions & variables-------------------------------*/
@@ -521,8 +520,9 @@ void setup()
 
 void loop()
 {
-  loopGyro();
-
+//  loopGyro();
+  while(Serial.available() > 0)
+  Serial.read();
   TPacket recvPacket;
   TResult result = readPacket(&recvPacket);
 

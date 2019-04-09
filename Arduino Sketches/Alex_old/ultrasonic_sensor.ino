@@ -8,7 +8,7 @@ long durationL, cmL;
  
 void setupUSensor() {
   //Serial Port begin
-  Serial.begin (9600);
+//  Serial.begin (9600);
 //Define inputs and outputs
   pinMode(trigPin, OUTPUT);
   pinMode(echoPinL, INPUT);
@@ -41,9 +41,9 @@ long loopUSensor() { //165ms delay
     durationL = pulseIn(echoPinL, HIGH);
     //count=1;
     cmL = (durationL/2) / 29.1;     // Divide by 29.1 or multiply by 0.0343
-    Serial.print("Left distance: ");
-    Serial.print(cmL);
-    Serial.print("cm ");
+//    Serial.print("Left distance: ");
+//    Serial.print(cmL);
+//    Serial.print("cm ");
   //}
   /*else if (count==1)
   {
