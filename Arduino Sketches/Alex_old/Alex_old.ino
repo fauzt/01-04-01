@@ -20,6 +20,10 @@ volatile unsigned long leftturnticks;
 volatile unsigned long rightturnticks;
 volatile unsigned long obj_color; // 0 for red, 1 for green, 2 for confused
 volatile unsigned long ultra_dist;
+#define LF                  5
+#define LR                  6 
+#define RF                  10
+#define RR                  11
 
 /*-----------------------------GYRO Definitions & variables-------------------------------*/
 
@@ -248,10 +252,14 @@ void clearCounters()
 void stop()
 {
   dir = STOP;
-  OCR0A = 0;
-  OCR1B = 0;
-  OCR2A = 0;
-  OCR0B = 0;
+//  OCR0A = 0;
+//  OCR1B = 0;
+//  OCR2A = 0;
+//  OCR0B = 0;
+  analogWrite(LF, 0);
+  analogWrite(RF, 0);
+  analogWrite(LR, 0);
+  analogWrite(RR, 0);
 }
 
 
@@ -260,13 +268,16 @@ bool forward(float dist)
   dir = FORWARD;
   long targetdist = forwarddist + dist;
   long dist_now = forwarddist;
+  ultra_dist = loopUSensor();
   while (forwarddist <= targetdist)
   {
     if (ultra_dist >= FAILSAFE)
     {
       int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
-      OCR0A = val;
-      OCR1B = val;
+//      OCR0A = val;
+//      OCR1B = val;
+        analogWrite(LF, val);
+        analogWrite(RF, val);
       ultra_dist = loopUSensor();
     }
     else
@@ -285,13 +296,16 @@ bool reverse(float dist)
   dir = BACKWARD;
   long targetdist = reversedist + dist;
   long dist_now = reversedist;
+  ultra_dist = loopUSensor();
   while (reversedist <= targetdist)
   {
     if (ultra_dist >= FAILSAFE)
     {
       int val = map(reversedist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
-      OCR2A = val;
-      OCR0B = val;
+//      OCR2A = val;
+//      OCR0B = val;
+        analogWrite(LR, val);
+        analogWrite(RR, val);
       ultra_dist = loopUSensor();
     }
     else
@@ -484,22 +498,39 @@ void handleCommand(TPacket *command)
   }
 }
 
-void handlePacket(TPacket *packet)
+void waitForHello()
 {
-  switch (packet->packetType)
+  int exit = 0;
+
+  while (!exit)
   {
-    case PACKET_TYPE_COMMAND:
-      handleCommand(packet);
-      break;
-    case PACKET_TYPE_RESPONSE:
-      break;
-    case PACKET_TYPE_ERROR:
-      break;
-    case PACKET_TYPE_MESSAGE:
-      break;
-    case PACKET_TYPE_HELLO:
-      break;
-  }
+    TPacket hello;
+    TResult result;
+
+    do
+    {
+      result = readPacket(&hello);
+    } while (result == PACKET_INCOMPLETE);
+
+    if (result == PACKET_OK)
+    {
+      if (hello.packetType == PACKET_TYPE_HELLO)
+      {
+
+
+        sendOK(true);
+        exit = 1;
+      }
+      else
+        sendBadResponse();
+    }
+    else if (result == PACKET_BAD)
+    {
+      sendBadPacket();
+    }
+    else if (result == PACKET_CHECKSUM_BAD)
+      sendBadChecksum();
+  } // !exit
 }
 
 void setup()
@@ -516,6 +547,24 @@ void setup()
   enablePullups();
   initializeState();
   sei();
+}
+
+void handlePacket(TPacket *packet)
+{
+  switch (packet->packetType)
+  {
+    case PACKET_TYPE_COMMAND:
+      handleCommand(packet);
+      break;
+    case PACKET_TYPE_RESPONSE:
+      break;
+    case PACKET_TYPE_ERROR:
+      break;
+    case PACKET_TYPE_MESSAGE:
+      break;
+    case PACKET_TYPE_HELLO:
+      break;
+  }
 }
 
 void loop()
