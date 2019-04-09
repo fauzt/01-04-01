@@ -1,4 +1,4 @@
-#ifndef __SERIALIZE__
+#ifndef __SERIALIZE_H_
 #define SERIALIZE
 
 #include <stdlib.h>
