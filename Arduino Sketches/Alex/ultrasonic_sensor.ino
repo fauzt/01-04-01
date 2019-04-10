@@ -1,12 +1,14 @@
 int trigPin = 13;    // Trigger
-int echoPinL = 12;    // Echo
-long durationL, cmL;
+int echoPinC = 12;    // Echo
+int echoPinL = 8;
+int echoPinR = 9;
+long duration, cm;
  
 void setupUSensor() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPinL, INPUT);
-//  pinMode(echoPinC, INPUT);
-//  pinMode(echoPinR, INPUT);
+ pinMode(echoPinC, INPUT);
+ pinMode(echoPinR, INPUT);
 }
  
 long loopUSensor() {
@@ -16,7 +18,23 @@ long loopUSensor() {
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
   
-  durationL = pulseIn(echoPinL, HIGH);
-  cmL = (durationL/2) / 29.1;
-  return cmL;
+  if(dir == FORWARD || dir == STOP || dir == BACKWARD)
+  {
+  duration = pulseIn(echoPinC, HIGH);
+  cm = (duration/2) / 29.1;
+  ultra_dist_C = cm;
+  }
+  else if(dir == RIGHT)
+  {
+  duration = pulseIn(echoPinR, HIGH);
+  cm = (duration/2) / 29.1;
+  ultra_dist_R = cm;
+  }
+  else if(dir == LEFT)
+  {
+  duration = pulseIn(echoPinL, HIGH);
+  cm = (duration/2) / 29.1;
+  ultra_dist_L = cm;
+  }
+
 }
