@@ -73,8 +73,9 @@ typedef enum
 typedef enum
 {
   RED = 1,
-  BLUE = 3,
-  GREEN = 2
+  WHITE = 3,
+  GREEN = 2,
+  UNCLEAR = 4
 }Colors;
 
 /*

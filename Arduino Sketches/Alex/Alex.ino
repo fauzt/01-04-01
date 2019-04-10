@@ -168,7 +168,10 @@ void sendOK(bool failsafe)
   okPacket.params[7] = ultra_dist_C;
   okPacket.params[8] = angle;
   okPacket.params[9] = ultra_dist_L;
-  okPacket.params[9] = ultra_dist_R;
+  okPacket.params[10] = ultra_dist_R;
+  okPacket.params[11] = leftangle;
+  okPacket.params[12] = rightangle;
+  okPacket.params[13] = over_ride;
 
   if (!failsafe)
   {
@@ -193,7 +196,10 @@ void sendStatus()
   statusPacket.params[7] = ultra_dist_C;
   statusPacket.params[8] = angle;
   statusPacket.params[9] = ultra_dist_L;
-  statusPacket.params[9] = ultra_dist_R;
+  statusPacket.params[10] = ultra_dist_R;
+  statusPacket.params[11] = leftangle;
+  statusPacket.params[12] = rightangle;
+  statusPacket.params[13] = over_ride;
 
   sendResponse(&statusPacket);
 }
@@ -243,16 +249,36 @@ bool forward(float dist, float val)
   long targetdist = forwarddist + dist;
   long dist_now = forwarddist;
   loopUSensor();
+  long counter = 0;
+  long old_ticks = reverseticks;
+  //  OCR2A = 0;
+  //  OCR0B = 0;
   while (forwarddist <= targetdist)
   {
     if (ultra_dist_C >= FAILSAFE || over_ride == OVER_ON)
     {
-      //        int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
-      analogWrite(LF, min(255, max(MIN_POWER,val)));
-      analogWrite(RF, min(255, max(MIN_POWER,val * 1.275)));
+      val = map(forwarddist, dist_now, targetdist, min(255, max(MIN_POWER, val)), MIN_POWER);
+      analogWrite(LF, min(255, max(MIN_POWER, val)));
+      analogWrite(RF, min(255, max(MIN_POWER, val * 1.275)));
       analogWrite(LR, 0);
       analogWrite(RR, 0);
+      //      OCR0A = val * 1.275;
+      //      OCR1B = val;
       loopUSensor();
+      if (forwardticks == old_ticks)
+      {
+        counter++;
+      }
+      else
+      {
+        old_ticks = forwardticks;
+        counter = 0;
+      }
+      if (counter == 1000)
+      {
+        stop();
+        return false;
+      }
     }
     else
     {
@@ -269,23 +295,42 @@ bool reverse(float dist, float val)
   dir = BACKWARD;
   long targetdist = reversedist + dist;
   long dist_now = reversedist;
-  loopUSensor();
+  long counter = 0;
+  long old_ticks = reverseticks;
+  //  OCR0A = 0;
+  //    OCR1B = 0;
   while (reversedist < targetdist )
   {
     //    if (ultra_dist_C >= FAILSAFE)
     //    {
-    //int val = map(reversedist, dist_now, targetdist, 200, 0);
-    analogWrite(RR, min(255, max(MIN_POWER,val * 1.25)));
-    analogWrite(LR, min(255, max(MIN_POWER,val)));
+    val = map(reversedist, dist_now, targetdist, min(255, max(MIN_POWER, val)), MIN_POWER);
+    analogWrite(RR, min(255, max(MIN_POWER, val * 1.25)));
+    analogWrite(LR, min(255, max(MIN_POWER, val)));
     analogWrite(LF, 0);
     analogWrite(RF, 0);
-    loopUSensor();
+
+    //    OCR2A = val * 1.25;
+    //    OCR0B = val;
     //    }
     //    else
     //    {
     //      stop();
     //      return false;
     //    }
+    if (reverseticks == old_ticks)
+    {
+      counter++;
+    }
+    else
+    {
+      old_ticks = reverseticks;
+      counter = 0;
+    }
+    if (counter == 1000)
+    {
+      stop();
+      return false;
+    }
   }
   stop();
   return true;
@@ -293,13 +338,37 @@ bool reverse(float dist, float val)
 bool left(float ang, float val)
 {
   dir = LEFT;
+  long angle_now = leftangle;
   long target_ang = leftangle + ang;
+  //  OCR0B = 0;
+  //  OCR0A = 0;
+  long counter = 0;
+  long old_ticks = leftticks;
   while (leftangle < target_ang || over_ride == OVER_ON)
   {
+    val = map(leftangle, angle_now, target_ang, min(255, max(MIN_POWER, val)), MIN_POWER);
     analogWrite(RR, 0);
-    analogWrite(LR, min(255, max(MIN_POWER,val)));
+    analogWrite(LR, min(255, max(MIN_POWER, val)));
     analogWrite(LF, 0);
-    analogWrite(RF, min(255, max(MIN_POWER,val)));
+    analogWrite(RF, min(255, max(MIN_POWER, val)));
+    //    OCR1B = val;
+    //    OCR2A = val * 1.25;
+
+    //loopUSensor();
+    if (leftticks == old_ticks)
+    {
+      counter++;
+    }
+    else
+    {
+      old_ticks = leftticks;
+      counter = 0;
+    }
+    if (counter == 1000)
+    {
+      stop();
+      return false;
+    }
   }
   stop();
   return true;
@@ -308,13 +377,36 @@ bool left(float ang, float val)
 bool right(float ang, float val)
 {
   dir = RIGHT;
+  long angle_now = rightangle;
   long target_ang = rightangle + ang;
+  //  OCR1B = 0;
+  //  OCR2A = 0;
+  long counter = 0;
+  long old_ticks = rightticks;
   while (rightangle < target_ang || over_ride == OVER_ON)
   {
-    analogWrite(RR, min(255, max(MIN_POWER,val)));
+    val = map(rightangle, angle_now, target_ang, min(255, max(MIN_POWER, val)), MIN_POWER);
+    analogWrite(RR, min(255, max(MIN_POWER, val)));
     analogWrite(LR, 0);
-    analogWrite(LF, min(255, max(MIN_POWER,val)));
+    analogWrite(LF, min(255, max(MIN_POWER, val)));
     analogWrite(RF, 0);
+
+    //    OCR0A = val * 1.25;
+    //    OCR0B = val;
+    if (rightticks == old_ticks)
+    {
+      counter++;
+    }
+    else
+    {
+      old_ticks = rightticks;
+      counter = 0;
+    }
+    if (counter == 1000)
+    {
+      stop();
+      return false;
+    }
   }
   stop();
   return true;
@@ -324,10 +416,14 @@ bool right(float ang, float val)
 void stop()
 {
   dir = STOP;
-  analogWrite(LF, 0);
-  analogWrite(RF, 0);
-  analogWrite(LR, 0);
-  analogWrite(RR, 0);
+  //  analogWrite(LF, 0);
+  //  analogWrite(RF, 0);
+  //  analogWrite(LR, 0);
+  //  analogWrite(RR, 0);
+  OCR0A = 0;
+  OCR1B = 0;
+  OCR2A = 0;
+  OCR0B = 0;
   loopColour();
   loopUSensor();
 }
@@ -403,7 +499,14 @@ void handleCommand(TPacket *command)
       break;
 
     case COMMAND_FSO:
-      over_ride = command->params[0];
+      if (over_ride == OVER_ON)
+      {
+        over_ride = OVER_OFF;
+      }
+      else
+      {
+        over_ride = OVER_ON;
+      }
       sendOK(all_good);
       break;
 
@@ -458,7 +561,7 @@ void setup() {
   initializeState();
   setupUSensor();
   setupColour();
-//  waitForHello();
+  //  waitForHello();
   sei();
 }
 

@@ -1,6 +1,6 @@
 int trigPin = 13;    // Trigger
 int echoPinC = 12;    // Echo
-int echoPinL = 8;
+int echoPinL = 7;
 int echoPinR = 9;
 long duration, cm;
  

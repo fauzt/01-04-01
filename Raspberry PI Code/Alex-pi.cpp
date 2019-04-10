@@ -47,8 +47,9 @@ void handleStatus(TPacket *packet)
         printf("Distance from object in front:\t%d\n", packet->params[7]);
         printf("Distance from object on left:\t%d\n", packet->params[9]);
         printf("Distance from object in right:\t%d\n", packet->params[10]);
-        printf("Angle from reference:\t%d\n", packet->params[8]);
-        printf("\n---------------------------------------\n\n");
+        printf("Angle from reference:\t%d\n\n", packet->params[8]);
+		printf("********OVERRIDE STATUS***********TAKE NOTE:\t%d\n\n", packet->params[13]);
+        printf("\n\n---------------------------------------\n\n");
 }
 
 void handleResponse(TPacket *packet)
@@ -70,7 +71,8 @@ void handleResponse(TPacket *packet)
         printf("Distance from object in front:\t%d\n", packet->params[7]);
         printf("Distance from object on left:\t%d\n", packet->params[9]);
         printf("Distance from object in right:\t%d\n", packet->params[10]);
-        printf("Angle from reference:\t%d\n", packet->params[8]);
+        printf("Angle from reference:\t%d\n\n", packet->params[8]);
+		printf("********OVERRIDE STATUS*********** TAKE NOTE:\t%d\n", packet->params[13]);
         printf("\n---------------------------------------\n\n");
 		printf("Command OK\n");
 		break;
@@ -89,9 +91,10 @@ void handleResponse(TPacket *packet)
         printf("Distance from object in front:\t%d\n", packet->params[7]);
         printf("Distance from object on left:\t%d\n", packet->params[9]);
         printf("Distance from object in right:\t%d\n", packet->params[10]);
-        printf("Angle from reference:\t%d\n", packet->params[8]);
+        printf("Angle from reference:\t%d\n\n", packet->params[8]);
+		printf("********OVERRIDE STATUS*********** TAKE NOTE:\t%d\n", packet->params[13]);
         printf("\n---------------------------------------\n\n");
-		printf("Failsafe Activated!!!!!!!!!\n");
+		printf("*******Failsafe Activated!!!!!!!!!*******\n");
 		break;
 
 	case RESP_STATUS:
@@ -312,7 +315,7 @@ int main()
 	while (!exitFlag)
 	{
 		char ch;
-		printf("Command (f=forward, b=reverse, l=turn left, r=turn right, s=stop, c=clear stats, g=get stats q=exit)\n");
+		printf("Command (w=forward, s=reverse, a=turn left, d=turn right, x=stop, c=clear stats, e=get stats q=exit)\n");
 		scanf("%c", &ch);
 
 		// Purge extraneous characters from input stream
