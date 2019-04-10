@@ -11,6 +11,7 @@
 #define PORT_NAME "/dev/ttyACM0"
 #define BAUD_RATE B57600
 
+volatile unsigned long over_ride = OVER_OFF;
 int exitFlag = 0;
 sem_t _xmitSema;
 
@@ -203,8 +204,7 @@ void flushInput()
 
 void getParams(TPacket *commandPacket)
 {
-	printf("Enter distance/angle in cm/degrees (e.g. 50) and power in %% (e.g. 75) separated by space.\n");
-	printf("E.g. 50 75 means go at 50 cm at 75%% power for forward/backward, or 50 degrees left or right turn at 75%%  power\n");
+	printf("Enter distance/angle in cm/degrees (e.g. 50) and power (e.g. 75) separated by space.\n");
 	scanf("%d %d", &commandPacket->params[0], &commandPacket->params[1]);
 	flushInput();
 }
@@ -268,6 +268,20 @@ void sendCommand(char command)
 	case 'Q':
 		exitFlag = 1;
 		break;
+
+	case 'O':
+	case 'o':
+		commandPacket.command = COMMAND_FSO;
+		if(over_ride == OVER_ON)
+		{
+			commandPacket.params[0] = OVER_OFF;
+		}
+		else
+		{
+			commandPacket.params[0] = OVER_ON;
+		}
+		
+		sendPacket(&commandPacket);
 
 	default:
 		printf("Bad command\n");

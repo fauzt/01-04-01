@@ -40,7 +40,14 @@ typedef enum
   COMMAND_TURN_RIGHT = 3,
   COMMAND_STOP = 4,
   COMMAND_GET_STATS = 5,
-  COMMAND_CLEAR_STATS = 6
+  COMMAND_CLEAR_STATS = 6,
+  COMMAND_FSO = 7
 } TCommandType;
+
+typedef enum
+{
+  OVER_ON = 1,
+  OVER_OFF = 0
+}Override_status;
 #endif
 

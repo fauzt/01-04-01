@@ -29,6 +29,7 @@ volatile unsigned long ultra_dist_C;
 volatile unsigned long ultra_dist_R;
 volatile unsigned long angle;
 volatile unsigned long obj_color;
+volatile unsigned long over_ride;
 
 /*-----------------------------GYRO Definitions & variables-------------------------------*/
 
@@ -244,7 +245,7 @@ bool forward(float dist, float val)
   loopUSensor();
   while (forwarddist <= targetdist)
   {
-    if (ultra_dist_C >= FAILSAFE)
+    if (ultra_dist_C >= FAILSAFE || over_ride == OVER_ON)
     {
       //        int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
       analogWrite(LF, min(255, max(MIN_POWER,val)));
@@ -269,7 +270,7 @@ bool reverse(float dist, float val)
   long targetdist = reversedist + dist;
   long dist_now = reversedist;
   loopUSensor();
-  while (reversedist < targetdist)
+  while (reversedist < targetdist )
   {
     //    if (ultra_dist_C >= FAILSAFE)
     //    {
@@ -293,7 +294,7 @@ bool left(float ang, float val)
 {
   dir = LEFT;
   long target_ang = leftangle + ang;
-  while (leftangle < target_ang)
+  while (leftangle < target_ang || over_ride == OVER_ON)
   {
     analogWrite(RR, 0);
     analogWrite(LR, min(255, max(MIN_POWER,val)));
@@ -308,7 +309,7 @@ bool right(float ang, float val)
 {
   dir = RIGHT;
   long target_ang = rightangle + ang;
-  while (rightangle < target_ang)
+  while (rightangle < target_ang || over_ride == OVER_ON)
   {
     analogWrite(RR, min(255, max(MIN_POWER,val)));
     analogWrite(LR, 0);
@@ -343,6 +344,7 @@ void clearCounters()
   rightticks = 0;
   leftangle = 0;
   rightangle = 0;
+  over_ride = OVER_OFF;
 }
 
 // Clears one particular counter
@@ -397,6 +399,11 @@ void handleCommand(TPacket *command)
 
     case COMMAND_CLEAR_STATS:
       clearOneCounter(command->params[0]);
+      sendOK(all_good);
+      break;
+
+    case COMMAND_FSO:
+      over_ride = command->params[0];
       sendOK(all_good);
       break;
 
