@@ -50,6 +50,7 @@ typedef enum
 {
   MAX_POWER = 100,
   MAX_ROTATE = 100,
+  MIN_POWER = 170,
   FAILSAFE = 7,
 }Limits;
 

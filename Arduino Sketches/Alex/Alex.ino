@@ -247,8 +247,8 @@ bool forward(float dist, float val)
     if (ultra_dist_C >= FAILSAFE)
     {
       //        int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
-      analogWrite(LF, val);
-      analogWrite(RF, min(255, val * 1.3));
+      analogWrite(LF, min(255, max(MIN_POWER,val)));
+      analogWrite(RF, min(255, max(MIN_POWER,val * 1.275)));
       analogWrite(LR, 0);
       analogWrite(RR, 0);
       loopUSensor();
@@ -274,8 +274,8 @@ bool reverse(float dist, float val)
     //    if (ultra_dist_C >= FAILSAFE)
     //    {
     //int val = map(reversedist, dist_now, targetdist, 200, 0);
-    analogWrite(RR, min(255, val * 1.25));
-    analogWrite(LR, val);
+    analogWrite(RR, min(255, max(MIN_POWER,val * 1.25)));
+    analogWrite(LR, min(255, max(MIN_POWER,val)));
     analogWrite(LF, 0);
     analogWrite(RF, 0);
     loopUSensor();
@@ -296,9 +296,9 @@ bool left(float ang, float val)
   while (leftangle < target_ang)
   {
     analogWrite(RR, 0);
-    analogWrite(LR, val);
+    analogWrite(LR, min(255, max(MIN_POWER,val)));
     analogWrite(LF, 0);
-    analogWrite(RF, val);
+    analogWrite(RF, min(255, max(MIN_POWER,val)));
   }
   stop();
   return true;
@@ -310,9 +310,9 @@ bool right(float ang, float val)
   long target_ang = rightangle + ang;
   while (rightangle < target_ang)
   {
-    analogWrite(RR, val);
+    analogWrite(RR, min(255, max(MIN_POWER,val)));
     analogWrite(LR, 0);
-    analogWrite(LF, val);
+    analogWrite(LF, min(255, max(MIN_POWER,val)));
     analogWrite(RF, 0);
   }
   stop();
