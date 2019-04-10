@@ -33,19 +33,21 @@ void handleError(TResult error)
 
 void handleStatus(TPacket *packet)
 {
-	printf("\n ------- ALEX STATUS REPORT ------- \n\n");
-	printf("Forward Ticks:\t\t%d\n", packet->params[0]);
-	printf("Reverse Ticks:\t\t%d\n", packet->params[1]);
-	printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
-	printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
-	printf("Forward Distance:\t%d\n", packet->params[4]);
-	printf("Reverse Distance:\t%d\n", packet->params[5]);
-	printf("Object color:\t%d\n", packet->params[6]);
-	printf("Distance from object in front:\t%d\n", packet->params[7]);
-	// printf("Distance from object on left:\t%d\n", packet->params[9]);
-	// printf("Distance from object on right:\t%d\n", packet->params[10]);
-	printf("Angle from reference:\t%d\n", packet->params[8]);
-	printf("\n---------------------------------------\n\n");
+		printf("\n ------- ALEX STATUS REPORT ------- \n\n");
+        printf("Forward Ticks:\t\t%d\n", packet->params[0]);
+        printf("Reverse Ticks:\t\t%d\n", packet->params[1]);
+        printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
+        printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
+        printf("Forward Distance:\t%d\n", packet->params[4]);
+        printf("Reverse Distance:\t%d\n", packet->params[5]);
+        printf("left turn Distance:\t%d\n", packet->params[11]);
+        printf("Right turn Distance:\t%d\n", packet->params[12]);
+        printf("Object color:\t%d\n", packet->params[6]);
+        printf("Distance from object in front:\t%d\n", packet->params[7]);
+        printf("Distance from object on left:\t%d\n", packet->params[9]);
+        printf("Distance from object in right:\t%d\n", packet->params[10]);
+        printf("Angle from reference:\t%d\n", packet->params[8]);
+        printf("\n---------------------------------------\n\n");
 }
 
 void handleResponse(TPacket *packet)
@@ -54,34 +56,40 @@ void handleResponse(TPacket *packet)
 	switch (packet->command)
 	{
 	case RESP_OK:
-		printf("Forward Ticks:\t\t%d\n", packet->params[0]);
-		printf("Reverse Ticks:\t\t%d\n", packet->params[1]);
-		printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
-		printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
-		printf("Forward Distance:\t%d\n", packet->params[4]);
-		printf("Reverse Distance:\t%d\n", packet->params[5]);
-		printf("Object color:\t%d\n", packet->params[6]);
-	printf("Distance from object in front:\t%d\n", packet->params[7]);
-	// printf("Distance from object on left:\t%d\n", packet->params[9]);
-	// printf("Distance from object on right:\t%d\n", packet->params[10]);
-		printf("Angle from reference:\t%d\n", packet->params[8]);
-		printf("\n---------------------------------------\n\n");
+		printf("\n ------- ALEX STATUS REPORT ------- \n\n");
+        printf("Forward Ticks:\t\t%d\n", packet->params[0]);
+        printf("Reverse Ticks:\t\t%d\n", packet->params[1]);
+        printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
+        printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
+        printf("Forward Distance:\t%d\n", packet->params[4]);
+        printf("Reverse Distance:\t%d\n", packet->params[5]);
+        printf("left turn Distance:\t%d\n", packet->params[11]);
+        printf("Right turn Distance:\t%d\n", packet->params[12]);
+        printf("Object color:\t%d\n", packet->params[6]);
+        printf("Distance from object in front:\t%d\n", packet->params[7]);
+        printf("Distance from object on left:\t%d\n", packet->params[9]);
+        printf("Distance from object in right:\t%d\n", packet->params[10]);
+        printf("Angle from reference:\t%d\n", packet->params[8]);
+        printf("\n---------------------------------------\n\n");
 		printf("Command OK\n");
 		break;
 
 	case RESP_FAILSAFE:
-		printf("Forward Ticks:\t\t%d\n", packet->params[0]);
-		printf("Reverse Ticks:\t\t%d\n", packet->params[1]);
-		printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
-		printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
-		printf("Forward Distance:\t%d\n", packet->params[4]);
-		printf("Reverse Distance:\t%d\n", packet->params[5]);
-		printf("Object color:\t%d\n", packet->params[6]);
-		printf("Distance from object in front:\t%d\n", packet->params[7]);
-		// printf("Distance from object on left:\t%d\n", packet->params[9]);
-	// printf("Distance from object on right:\t%d\n", packet->params[10]);
-		printf("Angle from reference:\t%d\n", packet->params[8]);
-		printf("\n---------------------------------------\n\n");
+		printf("\n ------- ALEX STATUS REPORT ------- \n\n");
+        printf("Forward Ticks:\t\t%d\n", packet->params[0]);
+        printf("Reverse Ticks:\t\t%d\n", packet->params[1]);
+        printf("Left Turn Ticks:\t\t%d\n", packet->params[2]);
+        printf("Right Turn Ticks:\t\t%d\n", packet->params[3]);
+        printf("Forward Distance:\t%d\n", packet->params[4]);
+        printf("Reverse Distance:\t%d\n", packet->params[5]);
+        printf("left turn Distance:\t%d\n", packet->params[11]);
+        printf("Right turn Distance:\t%d\n", packet->params[12]);
+        printf("Object color:\t%d\n", packet->params[6]);
+        printf("Distance from object in front:\t%d\n", packet->params[7]);
+        printf("Distance from object on left:\t%d\n", packet->params[9]);
+        printf("Distance from object in right:\t%d\n", packet->params[10]);
+        printf("Angle from reference:\t%d\n", packet->params[8]);
+        printf("\n---------------------------------------\n\n");
 		printf("Failsafe Activated!!!!!!!!!\n");
 		break;
 

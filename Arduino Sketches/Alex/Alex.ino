@@ -17,10 +17,16 @@ volatile TDirection dir = STOP;
 // right encoders.
 volatile unsigned long forwarddist;
 volatile unsigned long reversedist;
+volatile unsigned long leftangle;
+volatile unsigned long rightangle;
+volatile unsigned long rightticks;
+volatile unsigned long leftticks;
 //stores tick counts assume both encoders are accurate
 volatile unsigned long forwardticks;
 volatile unsigned long reverseticks;
-volatile unsigned long ultra_dist;
+volatile unsigned long ultra_dist_L;
+volatile unsigned long ultra_dist_C;
+volatile unsigned long ultra_dist_R;
 volatile unsigned long angle;
 volatile unsigned long obj_color;
 
@@ -109,16 +115,19 @@ byte gyro_sat = 0;
 float DCM_Matrix[3][3] = {
   {1, 0, 0},
   {0, 1, 0},
-  {0, 0, 1}};
+  {0, 0, 1}
+};
 float Update_Matrix[3][3] = {
   {0, 1, 2},
   {3, 4, 5},
-  {6, 7, 8}}; //Gyros here
+  {6, 7, 8}
+}; //Gyros here
 
 float Temporary_Matrix[3][3] = {
   {0, 0, 0},
   {0, 0, 0},
-  {0, 0, 0}};
+  {0, 0, 0}
+};
 
 /*-------------------------------End of GYRO Definitions & variables---------------------------------------*/
 
@@ -150,12 +159,16 @@ void sendOK(bool failsafe)
   okPacket.command = RESP_OK;
   okPacket.params[0] = forwardticks;
   okPacket.params[1] = reverseticks;
+  okPacket.params[2] = leftticks;
+  okPacket.params[3] = rightticks;
   okPacket.params[4] = forwarddist;
   okPacket.params[5] = reversedist;
   okPacket.params[6] = obj_color;
-  okPacket.params[7] = ultra_dist;
+  okPacket.params[7] = ultra_dist_C;
   okPacket.params[8] = angle;
-  
+  okPacket.params[9] = ultra_dist_L;
+  okPacket.params[9] = ultra_dist_R;
+
   if (!failsafe)
   {
     okPacket.command = RESP_FAILSAFE;
@@ -171,11 +184,15 @@ void sendStatus()
 
   statusPacket.params[0] = forwardticks;
   statusPacket.params[1] = reverseticks;
+  statusPacket.params[2] = leftticks;
+  statusPacket.params[3] = rightticks;
   statusPacket.params[4] = forwarddist;
   statusPacket.params[5] = reversedist;
   statusPacket.params[6] = obj_color;
-  statusPacket.params[7] = ultra_dist;
+  statusPacket.params[7] = ultra_dist_C;
   statusPacket.params[8] = angle;
+  statusPacket.params[9] = ultra_dist_L;
+  statusPacket.params[9] = ultra_dist_R;
 
   sendResponse(&statusPacket);
 }
@@ -187,14 +204,27 @@ void leftISR()
 {
   if (dir == FORWARD) {
     forwardticks++;
-    forwarddist = (forwardticks / COUNTS_PER_REV) * 20.0;
+    forwarddist = ((float)forwardticks / COUNTS_PER_REV) * WHEEL_CIRC;
   }
   else if (dir == BACKWARD) {
     reverseticks++;
-    reversedist = (reverseticks / COUNTS_PER_REV) * 20.0;
+    reversedist = ((float)reverseticks / COUNTS_PER_REV) * WHEEL_CIRC;
   }
 }
 
+void rightISR()
+{
+  if (dir == LEFT)
+  {
+    leftticks++;
+    leftangle = ((((float)leftticks / COUNTS_PER_REV) * WHEEL_CIRC) / 31.4) * 360;
+  }
+  else if (dir == RIGHT)
+  {
+    rightticks++;
+    rightangle = ((((float)rightticks / COUNTS_PER_REV) * WHEEL_CIRC) / 31.4) * 360;
+  }
+}
 
 ISR(INT0_vect)
 {
@@ -203,7 +233,7 @@ ISR(INT0_vect)
 
 ISR(INT1_vect)
 {
-  //  leftISR();
+  rightISR();
 }
 
 bool forward(float dist, float val)
@@ -211,17 +241,17 @@ bool forward(float dist, float val)
   dir = FORWARD;
   long targetdist = forwarddist + dist;
   long dist_now = forwarddist;
-  ultra_dist = loopUSensor();
+  loopUSensor();
   while (forwarddist <= targetdist)
   {
-    if (ultra_dist >= FAILSAFE)
+    if (ultra_dist_C >= FAILSAFE)
     {
       //        int val = map(forwarddist, dist_now, targetdist, (long)255 * (MAX_POWER / 100.0), 0);
       analogWrite(LF, val);
-      analogWrite(RF, val);
+      analogWrite(RF, min(255, val * 1.3));
       analogWrite(LR, 0);
       analogWrite(RR, 0);
-      ultra_dist = loopUSensor();
+      loopUSensor();
     }
     else
     {
@@ -238,44 +268,55 @@ bool reverse(float dist, float val)
   dir = BACKWARD;
   long targetdist = reversedist + dist;
   long dist_now = reversedist;
-  ultra_dist = loopUSensor();
-  while (reversedist <= targetdist)
+  loopUSensor();
+  while (reversedist < targetdist)
   {
-    if (ultra_dist >= FAILSAFE)
-    {
-      //int val = map(reversedist, dist_now, targetdist, 200, 0);
-      analogWrite(RR, val);
-      analogWrite(LR, val);
-      analogWrite(LF, 0);
-      analogWrite(RF, 0);
-      ultra_dist = loopUSensor();
-    }
-    else
-    {
-      stop();
-      return false;
-    }
+    //    if (ultra_dist_C >= FAILSAFE)
+    //    {
+    //int val = map(reversedist, dist_now, targetdist, 200, 0);
+    analogWrite(RR, min(255, val * 1.25));
+    analogWrite(LR, val);
+    analogWrite(LF, 0);
+    analogWrite(RF, 0);
+    loopUSensor();
+    //    }
+    //    else
+    //    {
+    //      stop();
+    //      return false;
+    //    }
   }
   stop();
   return true;
 }
-void left(float ang, float val)
+bool left(float ang, float val)
 {
   dir = LEFT;
-  analogWrite(RR, 0);
-      analogWrite(LR, val);
-      analogWrite(LF, 0);
-      analogWrite(RF, val);
-  
+  long target_ang = leftangle + ang;
+  while (leftangle < target_ang)
+  {
+    analogWrite(RR, 0);
+    analogWrite(LR, val);
+    analogWrite(LF, 0);
+    analogWrite(RF, val);
+  }
+  stop();
+  return true;
 }
 
-void right(float ang, float val)
+bool right(float ang, float val)
 {
   dir = RIGHT;
-  analogWrite(RR, val);
-      analogWrite(LR, 0);
-      analogWrite(LF, val);
-      analogWrite(RF, 0);
+  long target_ang = rightangle + ang;
+  while (rightangle < target_ang)
+  {
+    analogWrite(RR, val);
+    analogWrite(LR, 0);
+    analogWrite(LF, val);
+    analogWrite(RF, 0);
+  }
+  stop();
+  return true;
 }
 
 // Stop Alex. To replace with bare-metal code later.
@@ -287,7 +328,7 @@ void stop()
   analogWrite(LR, 0);
   analogWrite(RR, 0);
   loopColour();
-  ultra_dist = loopUSensor();
+  loopUSensor();
 }
 
 
@@ -298,6 +339,10 @@ void clearCounters()
   reversedist = 0;
   forwardticks = 0;
   reverseticks = 0;
+  leftticks = 0;
+  rightticks = 0;
+  leftangle = 0;
+  rightangle = 0;
 }
 
 // Clears one particular counter
@@ -330,12 +375,12 @@ void handleCommand(TPacket *command)
       break;
 
     case COMMAND_TURN_LEFT:
-      left((float) command->params[0], (float)command->params[1]);
+      all_good = left((float) command->params[0], (float)command->params[1]);
       sendOK(all_good);
       break;
 
     case COMMAND_TURN_RIGHT:
-      right((float) command->params[0], (float)command->params[1]);
+      all_good = right((float) command->params[0], (float)command->params[1]);
       sendOK(all_good);
       break;
 
@@ -346,7 +391,7 @@ void handleCommand(TPacket *command)
 
     case COMMAND_GET_STATS:
       loopColour();
-      ultra_dist = loopUSensor();
+      loopUSensor();
       sendStatus();
       break;
 
@@ -406,7 +451,7 @@ void setup() {
   initializeState();
   setupUSensor();
   setupColour();
-  
+//  waitForHello();
   sei();
 }
 
