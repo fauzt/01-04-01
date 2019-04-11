@@ -217,11 +217,7 @@ void leftISR()
     reverseticks++;
     reversedist = ((float)reverseticks / COUNTS_PER_REV) * WHEEL_CIRC;
   }
-}
-
-void rightISR()
-{
-  if (dir == LEFT)
+  else if (dir == LEFT)
   {
     leftticks++;
     leftangle = ((((float)leftticks / COUNTS_PER_REV) * WHEEL_CIRC) / 31.4) * 360;
@@ -233,6 +229,7 @@ void rightISR()
   }
 }
 
+
 ISR(INT0_vect)
 {
   leftISR();
@@ -240,7 +237,7 @@ ISR(INT0_vect)
 
 ISR(INT1_vect)
 {
-  rightISR();
+  //rightISR();
 }
 
 bool forward(float dist, float val)
