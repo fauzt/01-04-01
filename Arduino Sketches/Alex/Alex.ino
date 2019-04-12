@@ -220,12 +220,12 @@ void leftISR()
   else if (dir == LEFT)
   {
     leftticks++;
-    leftangle = ((((float)leftticks / COUNTS_PER_REV) * WHEEL_CIRC) / 31.4) * 360;
+    leftangle = ((((float)leftticks / COUNTS_PER_REV) * WHEEL_CIRC) / TURNING_CIRC) * 360;
   }
   else if (dir == RIGHT)
   {
     rightticks++;
-    rightangle = ((((float)rightticks / COUNTS_PER_REV) * WHEEL_CIRC) / 31.4) * 360;
+    rightangle = ((((float)rightticks / COUNTS_PER_REV) * WHEEL_CIRC) / TURNING_CIRC) * 360;
   }
 }
 
@@ -240,7 +240,7 @@ ISR(INT1_vect)
   //rightISR();
 }
 
-bool forward(float dist, float val)
+bool forward(float dist)
 {
   dir = FORWARD;
   long targetdist = forwarddist + dist;
@@ -254,7 +254,7 @@ bool forward(float dist, float val)
   {
     if (ultra_dist_C >= FAILSAFE || over_ride == OVER_ON)
     {
-      val = map(forwarddist, dist_now, targetdist, min(255, max(MIN_POWER, val)), MIN_POWER);
+      float val = map(forwarddist, dist_now, targetdist, MAX_POWER, MIN_POWER);
       analogWrite(LF, min(255, max(MIN_POWER, val)));
       analogWrite(RF, min(255, max(MIN_POWER, val * 1.275)));
       analogWrite(LR, 0);
@@ -287,7 +287,7 @@ bool forward(float dist, float val)
   return true;
 }
 
-bool reverse(float dist, float val)
+bool reverse(float dist)
 {
   dir = BACKWARD;
   long targetdist = reversedist + dist;
@@ -300,7 +300,7 @@ bool reverse(float dist, float val)
   {
     //    if (ultra_dist_C >= FAILSAFE)
     //    {
-    val = map(reversedist, dist_now, targetdist, min(255, max(MIN_POWER, val)), MIN_POWER);
+    float val = map(reversedist, dist_now, targetdist, MAX_POWER, MIN_POWER);
     analogWrite(RR, min(255, max(MIN_POWER, val * 1.25)));
     analogWrite(LR, min(255, max(MIN_POWER, val)));
     analogWrite(LF, 0);
@@ -332,7 +332,7 @@ bool reverse(float dist, float val)
   stop();
   return true;
 }
-bool left(float ang, float val)
+bool left(float ang)
 {
   dir = LEFT;
   long angle_now = leftangle;
@@ -343,14 +343,13 @@ bool left(float ang, float val)
   long old_ticks = leftticks;
   while (leftangle < target_ang || over_ride == OVER_ON)
   {
-    val = map(leftangle, angle_now, target_ang, min(255, max(MIN_POWER, val)), MIN_POWER);
+    float val = map(leftangle, angle_now, target_ang, MAX_POWER, MIN_POWER);
     analogWrite(RR, 0);
     analogWrite(LR, min(255, max(MIN_POWER, val)));
     analogWrite(LF, 0);
     analogWrite(RF, min(255, max(MIN_POWER, val)));
     //    OCR1B = val;
     //    OCR2A = val * 1.25;
-
     //loopUSensor();
     if (leftticks == old_ticks)
     {
@@ -371,7 +370,7 @@ bool left(float ang, float val)
   return true;
 }
 
-bool right(float ang, float val)
+bool right(float ang)
 {
   dir = RIGHT;
   long angle_now = rightangle;
@@ -382,7 +381,7 @@ bool right(float ang, float val)
   long old_ticks = rightticks;
   while (rightangle < target_ang || over_ride == OVER_ON)
   {
-    val = map(rightangle, angle_now, target_ang, min(255, max(MIN_POWER, val)), MIN_POWER);
+    float val = map(rightangle, angle_now, target_ang, MAX_POWER, MIN_POWER);
     analogWrite(RR, min(255, max(MIN_POWER, val)));
     analogWrite(LR, 0);
     analogWrite(LF, min(255, max(MIN_POWER, val)));
@@ -459,23 +458,23 @@ void handleCommand(TPacket *command)
     // For movement commands, param[0] = distance, param[1] = speed.
     case COMMAND_FORWARD:
 
-      all_good = forward((float)command->params[0], (float)command->params[1]);
+      all_good = forward((float)command->params[0]);
       sendOK(all_good);
       break;
 
     case COMMAND_REVERSE:
 
-      all_good = reverse((float)command->params[0], (float)command->params[1]);
+      all_good = reverse((float)command->params[0]);
       sendOK(all_good);
       break;
 
     case COMMAND_TURN_LEFT:
-      all_good = left((float) command->params[0], (float)command->params[1]);
+      all_good = left((float) command->params[0]);
       sendOK(all_good);
       break;
 
     case COMMAND_TURN_RIGHT:
-      all_good = right((float) command->params[0], (float)command->params[1]);
+      all_good = right((float) command->params[0]);
       sendOK(all_good);
       break;
 

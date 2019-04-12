@@ -207,8 +207,8 @@ void flushInput()
 
 void getParams(TPacket *commandPacket)
 {
-	printf("Enter distance/angle in cm/degrees (e.g. 50) and power (e.g. 75) separated by space.\n");
-	scanf("%d %d", &commandPacket->params[0], &commandPacket->params[1]);
+	printf("Enter distance/angle in cm/degrees (e.g. 50).\n");
+	scanf("%d", &commandPacket->params[0]);
 	flushInput();
 }
 
