@@ -154,7 +154,7 @@ bool forward(float dist)
     {
       float val = map(forwarddist, dist_now, targetdist, MAX_POWER, MIN_POWER);
       analogWrite(LF, min(255, max(MIN_POWER, val)));
-      analogWrite(RF, min(255, max(MIN_POWER, val + 45)));
+      analogWrite(RF, min(255, max(MIN_POWER, val + BIAS)));
       analogWrite(LR, 0);
       analogWrite(RR, 0);
       //      OCR0A = val * 1.275;
@@ -199,7 +199,7 @@ bool reverse(float dist)
     //    if (ultra_dist_C >= FAILSAFE)
     //    {
     float val = map(reversedist, dist_now, targetdist, MAX_POWER, MIN_POWER);
-    analogWrite(RR, min(255, max(MIN_POWER, val + 45)));
+    analogWrite(RR, min(255, max(MIN_POWER, val + BIAS)));
     analogWrite(LR, min(255, max(MIN_POWER, val)));
     analogWrite(LF, 0);
     analogWrite(RF, 0);
@@ -245,7 +245,7 @@ bool left(float ang)
     analogWrite(RR, 0);
     analogWrite(LR, min(255, max(MIN_POWER, val)));
     analogWrite(LF, 0);
-    analogWrite(RF, min(255, max(MIN_POWER, val + 45)));
+    analogWrite(RF, min(255, max(MIN_POWER, val + BIAS)));
     //    OCR1B = val;
     //    OCR2A = val * 1.25;
     //loopUSensor();
@@ -280,7 +280,7 @@ bool right(float ang)
   while (rightangle < target_ang || over_ride == OVER_ON)
   {
     float val = map(rightangle, angle_now, target_ang, MAX_POWER, MIN_POWER);
-    analogWrite(RR, min(255, max(MIN_POWER, val + 45)));
+    analogWrite(RR, min(255, max(MIN_POWER, val + BIAS)));
     analogWrite(LR, 0);
     analogWrite(LF, min(255, max(MIN_POWER, val)));
     analogWrite(RF, 0);
@@ -310,14 +310,15 @@ bool right(float ang)
 void stop()
 {
   dir = STOP;
-  //  analogWrite(LF, 0);
-  //  analogWrite(RF, 0);
-  //  analogWrite(LR, 0);
-  //  analogWrite(RR, 0);
-  OCR0A = 0;
-  OCR1B = 0;
-  OCR2A = 0;
-  OCR0B = 0;
+    analogWrite(LF, 0);
+    analogWrite(LR, 0);
+    delay(100);
+    analogWrite(RF, 0);
+    analogWrite(RR, 0);
+//  OCR0A = 0;
+//  OCR1B = 0;
+//  OCR2A = 0;
+//  OCR0B = 0;
   loopColour();
   loopUSensor();
 }
