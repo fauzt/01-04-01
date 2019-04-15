@@ -53,7 +53,7 @@ void loopColour() {
   // Remaping the value of the RED (R) frequency from 0 to 255
   // You must replace with your own values. Here's an example: 
   // redColor = map(redFrequency, 70, 120, 255,0);
-  redColor = map(redFrequency, 13, 15, 255,0);
+  redColor = map(redFrequency, 41, 46, 255,0);
   
   // Setting GREEN (G) filtered photodiodes to be read
   //PORTC |= B00000100;//turn s2 high
@@ -64,7 +64,7 @@ void loopColour() {
   
   // Reading the output frequency
   greenFrequency = pulseIn(sensorOut, LOW);
-  greenColor = map(greenFrequency, 45, 50, 255, 0);
+  greenColor = map(greenFrequency, 27, 40, 255, 0);
  /*
   // Setting BLUE (B) filtered photodiodes to be read
   PORTC &= B11111011;//turn s2 low
@@ -87,7 +87,7 @@ void loopColour() {
   
   // Reading the output frequency
   clearFrequency = pulseIn(sensorOut, LOW);
-  clearColor = map(clearFrequency, 8, 9, 255, 0);
+  clearColor = map(clearFrequency, 16, 24, 255, 0);
   
   // Checks the current detected color and prints
   // a message in the serial monitor
@@ -98,15 +98,21 @@ void loopColour() {
       Serial.println(" - GREEN detected!");
   }*/
   //magic number of 8 on ultrasonic
-  if(redColor > greenColor && clearColor<=-250){
+  if(redFrequency >= 40 && clearColor<=100){
       obj_color = RED;
   }
-  else if(greenColor > redColor && clearColor<=-250){
+  else if(greenFrequency <= 35 && clearColor<=100){
     obj_color = GREEN;
   }
-  else if (clearColor > -250){
+  else if (clearColor > 100){
     obj_color = WHITE;
   }
+//  if(redFrequency < greenFrequency && redFrequency < clearFrequency)
+//    obj_color = RED;
+//  else if(greenFrequency < redFrequency && greenFrequency < clearFrequency)
+//    obj_color = GREEN;
+//  else if(clearFrequency < redFrequency && clearFrequency < greenFrequency)
+//    obj_color = WHITE;
   else
     obj_color = UNCLEAR;
 }

@@ -166,9 +166,9 @@ void sendOK(bool failsafe)
   okPacket.params[5] = reversedist;
   okPacket.params[6] = obj_color;
   okPacket.params[7] = ultra_dist_C;
-  okPacket.params[8] = angle;
-  okPacket.params[9] = ultra_dist_L;
-  okPacket.params[10] = ultra_dist_R;
+  //okPacket.params[8] = angle;
+  //okPacket.params[9] = ultra_dist_L;
+  //okPacket.params[10] = ultra_dist_R;
   okPacket.params[11] = leftangle;
   okPacket.params[12] = rightangle;
   okPacket.params[13] = over_ride;
@@ -194,9 +194,9 @@ void sendStatus()
   statusPacket.params[5] = reversedist;
   statusPacket.params[6] = obj_color;
   statusPacket.params[7] = ultra_dist_C;
-  statusPacket.params[8] = angle;
-  statusPacket.params[9] = ultra_dist_L;
-  statusPacket.params[10] = ultra_dist_R;
+  //statusPacket.params[8] = angle;
+  //statusPacket.params[9] = ultra_dist_L;
+  //statusPacket.params[10] = ultra_dist_R;
   statusPacket.params[11] = leftangle;
   statusPacket.params[12] = rightangle;
   statusPacket.params[13] = over_ride;
@@ -220,12 +220,12 @@ void leftISR()
   else if (dir == LEFT)
   {
     leftticks++;
-    leftangle = ((((float)leftticks / COUNTS_PER_REV) * WHEEL_CIRC) / TURNING_CIRC) * 360;
+    leftangle = ((((float)leftticks / COUNTS_PER_REV) * WHEEL_CIRC) / 31.4) * 360;
   }
   else if (dir == RIGHT)
   {
     rightticks++;
-    rightangle = ((((float)rightticks / COUNTS_PER_REV) * WHEEL_CIRC) / TURNING_CIRC) * 360;
+    rightangle = ((((float)rightticks / COUNTS_PER_REV) * WHEEL_CIRC) / 31.4) * 360;
   }
 }
 
@@ -256,7 +256,7 @@ bool forward(float dist)
     {
       float val = map(forwarddist, dist_now, targetdist, MAX_POWER, MIN_POWER);
       analogWrite(LF, min(255, max(MIN_POWER, val)));
-      analogWrite(RF, min(255, max(MIN_POWER, val * 1.275)));
+      analogWrite(RF, min(255, max(MIN_POWER, val + 45)));
       analogWrite(LR, 0);
       analogWrite(RR, 0);
       //      OCR0A = val * 1.275;
@@ -301,7 +301,7 @@ bool reverse(float dist)
     //    if (ultra_dist_C >= FAILSAFE)
     //    {
     float val = map(reversedist, dist_now, targetdist, MAX_POWER, MIN_POWER);
-    analogWrite(RR, min(255, max(MIN_POWER, val * 1.25)));
+    analogWrite(RR, min(255, max(MIN_POWER, val + 45)));
     analogWrite(LR, min(255, max(MIN_POWER, val)));
     analogWrite(LF, 0);
     analogWrite(RF, 0);
@@ -347,7 +347,7 @@ bool left(float ang)
     analogWrite(RR, 0);
     analogWrite(LR, min(255, max(MIN_POWER, val)));
     analogWrite(LF, 0);
-    analogWrite(RF, min(255, max(MIN_POWER, val)));
+    analogWrite(RF, min(255, max(MIN_POWER, val + 45)));
     //    OCR1B = val;
     //    OCR2A = val * 1.25;
     //loopUSensor();
@@ -382,7 +382,7 @@ bool right(float ang)
   while (rightangle < target_ang || over_ride == OVER_ON)
   {
     float val = map(rightangle, angle_now, target_ang, MAX_POWER, MIN_POWER);
-    analogWrite(RR, min(255, max(MIN_POWER, val)));
+    analogWrite(RR, min(255, max(MIN_POWER, val + 45)));
     analogWrite(LR, 0);
     analogWrite(LF, min(255, max(MIN_POWER, val)));
     analogWrite(RF, 0);

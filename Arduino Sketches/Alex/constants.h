@@ -49,10 +49,10 @@ typedef enum
 */
 typedef enum
 {
-  MAX_POWER = 230,
+  MAX_POWER = 190,
   MAX_ROTATE = 100,
-  MIN_POWER = 170,
-  FAILSAFE = 7,
+  MIN_POWER = 140,
+  FAILSAFE = 7
 }Limits;
 
 /*
@@ -61,8 +61,7 @@ typedef enum
 typedef enum
 {
   COUNTS_PER_REV = 195,
-  WHEEL_CIRC = 19.5,
-  TURNING_CIRC = 31.4
+  WHEEL_CIRC = 20
 }Motors;
 
 typedef enum

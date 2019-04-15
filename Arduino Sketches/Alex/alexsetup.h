@@ -25,18 +25,18 @@ void setupEINT()
 void setupSerial()
 {
 	// To replace later with bare-metal.
-	Serial.begin(57600);
-	// UCSR0C = 0b00000110;
-	// UBRR0L = 16; //round(16000000/(16*baudrate)) - 1
-	// UBRR0H = 0;
-	// UCSR0A = 0;
+//	Serial.begin(57600);
+	 UCSR0C = 0b00000110;
+	 UBRR0L = 16; //round(16000000/(16*baudrate)) - 1
+	 UBRR0H = 0;
+	 UCSR0A = 0;
 }
 
 void startSerial()
 {
 	// Empty for now. To be replaced with bare-metal code
 	// later on.
-	// UCSR0B = 0b10001000;
+	 UCSR0B = 0b10001000;
 }
 void setupMotors()
 {
