@@ -50,5 +50,13 @@ typedef enum
   OVER_ON = 1,
   OVER_OFF = 0
 }Override_status;
+
+typedef enum
+{
+  RED = 1,
+  WHITE = 3,
+  GREEN = 2,
+  UNCLEAR = 4
+}Colors;
 #endif
 

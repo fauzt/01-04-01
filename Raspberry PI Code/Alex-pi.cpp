@@ -7,8 +7,7 @@
 #include "serial.h"
 #include "serialize.h"
 #include "constants.h"
-
-#define PORT_NAME "/dev/ttyACM0"
+#define PORT_NAME "/dev/ttyACM1"
 #define BAUD_RATE B57600
 
 volatile unsigned long over_ride = OVER_OFF;
@@ -43,13 +42,25 @@ void handleStatus(TPacket *packet)
         printf("Reverse Distance:\t%d\n", packet->params[5]);
         printf("left turn Distance:\t%d\n", packet->params[11]);
         printf("Right turn Distance:\t%d\n", packet->params[12]);
-        printf("Object color:\t%d\n", packet->params[6]);
+        printf("Object color:\t");
+	if(packet->params[6] == RED)
+	printf("RED\n");
+	else if(packet->params[6] == GREEN)
+	printf("GREEN\n");
+	else if (packet->params[6] == WHITE)
+	printf("WHITE\n");
+	else
+	printf("UNKNOWN\n");
         printf("Distance from object in front:\t%d\n", packet->params[7]);
-        printf("Distance from object on left:\t%d\n", packet->params[9]);
-        printf("Distance from object in right:\t%d\n", packet->params[10]);
-        printf("Angle from reference:\t%d\n\n", packet->params[8]);
-		printf("********OVERRIDE STATUS***********TAKE NOTE:\t%d\n\n", packet->params[13]);
-        printf("\n\n---------------------------------------\n\n");
+        //printf("Distance from object on left:\t%d\n", packet->params[9]);
+        //printf("Distance from object in right:\t%d\n", packet->params[10]);
+        //printf("Angle from reference:\t%d\n\n", packet->params[8]);
+	printf("********FAILSAFE STATUS***********TAKE NOTE:\t");
+	if(packet->params[13] == OVER_ON)
+	printf("OFF\n\n");
+	else
+	printf("ON\n\n");
+        printf("\n---------------------------------------\n\n");
 }
 
 void handleResponse(TPacket *packet)
@@ -67,12 +78,24 @@ void handleResponse(TPacket *packet)
         printf("Reverse Distance:\t%d\n", packet->params[5]);
         printf("left turn Distance:\t%d\n", packet->params[11]);
         printf("Right turn Distance:\t%d\n", packet->params[12]);
-        printf("Object color:\t%d\n", packet->params[6]);
+        printf("Object color:\t");
+	if(packet->params[6] == RED)
+	printf("RED\n");
+	else if(packet->params[6] == GREEN)
+	printf("GREEN\n");
+	else if (packet->params[6] == WHITE)
+	printf("WHITE\n");
+	else
+	printf("UNKNOWN\n");
         printf("Distance from object in front:\t%d\n", packet->params[7]);
-        printf("Distance from object on left:\t%d\n", packet->params[9]);
-        printf("Distance from object in right:\t%d\n", packet->params[10]);
-        printf("Angle from reference:\t%d\n\n", packet->params[8]);
-		printf("********OVERRIDE STATUS*********** TAKE NOTE:\t%d\n", packet->params[13]);
+        //printf("Distance from object on left:\t%d\n", packet->params[9]);
+        //printf("Distance from object in right:\t%d\n", packet->params[10]);
+        //printf("Angle from reference:\t%d\n\n", packet->params[8]);
+	printf("********FALSAFE STATUS*********** TAKE NOTE:\t");
+	if(packet->params[13] == OVER_ON)
+	printf("OFF\n\n");
+	else
+	printf("ON\n\n");
         printf("\n---------------------------------------\n\n");
 		printf("Command OK\n");
 		break;
@@ -87,12 +110,24 @@ void handleResponse(TPacket *packet)
         printf("Reverse Distance:\t%d\n", packet->params[5]);
         printf("left turn Distance:\t%d\n", packet->params[11]);
         printf("Right turn Distance:\t%d\n", packet->params[12]);
-        printf("Object color:\t%d\n", packet->params[6]);
+        printf("Object color:\t");
+	if(packet->params[6] == RED)
+	printf("RED\n");
+	else if(packet->params[6] == GREEN)
+	printf("GREEN\n");
+	else if (packet->params[6] == WHITE)
+	printf("WHITE\n");
+	else
+	printf("UNKNOWN\n");
         printf("Distance from object in front:\t%d\n", packet->params[7]);
-        printf("Distance from object on left:\t%d\n", packet->params[9]);
-        printf("Distance from object in right:\t%d\n", packet->params[10]);
-        printf("Angle from reference:\t%d\n\n", packet->params[8]);
-		printf("********OVERRIDE STATUS*********** TAKE NOTE:\t%d\n", packet->params[13]);
+        //printf("Distance from object on left:\t%d\n", packet->params[9]);
+        //printf("Distance from object in right:\t%d\n", packet->params[10]);
+        //printf("Angle from reference:\t%d\n\n", packet->params[8]);
+	printf("********FAILSAFE STATUS*********** TAKE NOTE:\t");
+	if(packet->params[13] == OVER_ON)
+	printf("OFF\n\n");
+	else
+	printf("ON\n\n");
         printf("\n---------------------------------------\n\n");
 		printf("*******Failsafe Activated!!!!!!!!!*******\n");
 		break;
@@ -275,15 +310,6 @@ void sendCommand(char command)
 	case 'O':
 	case 'o':
 		commandPacket.command = COMMAND_FSO;
-		if(over_ride == OVER_ON)
-		{
-			commandPacket.params[0] = OVER_OFF;
-		}
-		else
-		{
-			commandPacket.params[0] = OVER_ON;
-		}
-		
 		sendPacket(&commandPacket);
 
 	default:
@@ -315,7 +341,7 @@ int main()
 	while (!exitFlag)
 	{
 		char ch;
-		printf("Command (w=forward, s=reverse, a=turn left, d=turn right, x=stop, c=clear stats, e=get stats q=exit)\n");
+		printf("Command (w=forward, s=reverse, a=turn left, d=turn right, x=stop,\n c=clear stats, e=get stats q=exit)\n");
 		scanf("%c", &ch);
 
 		// Purge extraneous characters from input stream
