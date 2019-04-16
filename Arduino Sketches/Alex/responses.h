@@ -3,6 +3,9 @@
 #include "constants.h"
 #include "packet.h"
 
+/*
+	File contains response functions
+*/
 int readSerial(char *buffer)
 {
 

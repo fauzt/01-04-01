@@ -1,6 +1,10 @@
 #ifndef __ALEXSETUP_H__
 #define __ALEXSETUP_H__
 
+/**
+ * this file contains setup functions
+*/
+
 void enablePullups()
 {
 	// Use bare-metal to enable the pull-up resistors on pins

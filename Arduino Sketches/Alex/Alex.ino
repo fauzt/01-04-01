@@ -5,14 +5,14 @@
 #include "responses.h"
 
 volatile TDirection dir = STOP;
-#define LF                  10   // Left forward pin  //HOTFIX: hardware configured incorrectly
-#define LR                  11   // Left reverse pin  //HOTFIX
+#define LF                  10   // Left forward pin
+#define LR                  11   // Left reverse pin
 #define RF                  5  // Right forward pin
 #define RR                  6
+
 /*
       Alex's State Variables
 */
-
 // Store the ticks from Alex's left and
 // right encoders.
 volatile unsigned long forwarddist;
@@ -24,9 +24,7 @@ volatile unsigned long leftticks;
 //stores tick counts assume both encoders are accurate
 volatile unsigned long forwardticks;
 volatile unsigned long reverseticks;
-volatile unsigned long ultra_dist_L;
 volatile unsigned long ultra_dist_C;
-volatile unsigned long ultra_dist_R;
 volatile unsigned long angle;
 volatile unsigned long obj_color;
 volatile unsigned long over_ride;
@@ -51,6 +49,11 @@ TResult readPacket(TPacket *packet)
 
 }
 
+/*
+  Function to construct and send a command OK
+  response to PI. 
+  @param[in] failsafe tells if failsafe was activated during execution
+*/
 void sendOK(bool failsafe)
 {
   TPacket okPacket;
@@ -64,13 +67,9 @@ void sendOK(bool failsafe)
   okPacket.params[5] = reversedist;
   okPacket.params[6] = obj_color;
   okPacket.params[7] = ultra_dist_C;
-  //okPacket.params[8] = angle;
-  //okPacket.params[9] = ultra_dist_L;
-  //okPacket.params[10] = ultra_dist_R;
   okPacket.params[11] = leftangle;
   okPacket.params[12] = rightangle;
   okPacket.params[13] = over_ride;
-
   if (!failsafe)
   {
     okPacket.command = RESP_FAILSAFE;
@@ -78,6 +77,10 @@ void sendOK(bool failsafe)
   sendResponse(&okPacket);
 }
 
+/*
+  Function to construct and send a status
+  response to PI. 
+*/
 void sendStatus()
 {
   TPacket statusPacket;
@@ -92,9 +95,6 @@ void sendStatus()
   statusPacket.params[5] = reversedist;
   statusPacket.params[6] = obj_color;
   statusPacket.params[7] = ultra_dist_C;
-  //statusPacket.params[8] = angle;
-  //statusPacket.params[9] = ultra_dist_L;
-  //statusPacket.params[10] = ultra_dist_R;
   statusPacket.params[11] = leftangle;
   statusPacket.params[12] = rightangle;
   statusPacket.params[13] = over_ride;
@@ -102,9 +102,11 @@ void sendStatus()
   sendResponse(&statusPacket);
 }
 
-
-
-// Functions to be called by INT0 and INT1 ISRs.
+/*
+  Function to increment ticks and calculate
+  distance travelled since last counter-clear
+  called by INT0
+*/
 void leftISR()
 {
   if (dir == FORWARD) {
@@ -127,17 +129,18 @@ void leftISR()
   }
 }
 
-
+/*
+  ISR for left motor encoder
+*/
 ISR(INT0_vect)
 {
   leftISR();
 }
 
-ISR(INT1_vect)
-{
-  //rightISR();
-}
-
+/*
+  function to execute "FORWARD" command
+  called by handleCommand function
+*/
 bool forward(float dist)
 {
   dir = FORWARD;
@@ -146,8 +149,6 @@ bool forward(float dist)
   loopUSensor();
   long counter = 0;
   long old_ticks = reverseticks;
-  //  OCR2A = 0;
-  //  OCR0B = 0;
   while (forwarddist <= targetdist)
   {
     if (ultra_dist_C >= FAILSAFE || over_ride == OVER_ON)
@@ -157,8 +158,6 @@ bool forward(float dist)
       analogWrite(RF, min(255, max(MIN_POWER, val + BIAS)));
       analogWrite(LR, 0);
       analogWrite(RR, 0);
-      //      OCR0A = val * 1.275;
-      //      OCR1B = val;
       loopUSensor();
       if (forwardticks == old_ticks)
       {
@@ -185,6 +184,10 @@ bool forward(float dist)
   return true;
 }
 
+/*
+  function to execute "REVERSE" command
+  called by handleCommand function
+*/
 bool reverse(float dist)
 {
   dir = BACKWARD;
@@ -192,26 +195,13 @@ bool reverse(float dist)
   long dist_now = reversedist;
   long counter = 0;
   long old_ticks = reverseticks;
-  //  OCR0A = 0;
-  //    OCR1B = 0;
   while (reversedist < targetdist )
   {
-    //    if (ultra_dist_C >= FAILSAFE)
-    //    {
     float val = map(reversedist, dist_now, targetdist, MAX_POWER, MIN_POWER);
     analogWrite(RR, min(255, max(MIN_POWER, val + BIAS)));
     analogWrite(LR, min(255, max(MIN_POWER, val)));
     analogWrite(LF, 0);
     analogWrite(RF, 0);
-
-    //    OCR2A = val * 1.25;
-    //    OCR0B = val;
-    //    }
-    //    else
-    //    {
-    //      stop();
-    //      return false;
-    //    }
     if (reverseticks == old_ticks)
     {
       counter++;
@@ -230,13 +220,16 @@ bool reverse(float dist)
   stop();
   return true;
 }
+
+/*
+  function to execute "LEFT" command
+  called by handleCommand function
+*/
 bool left(float ang)
 {
   dir = LEFT;
   long angle_now = leftangle;
   long target_ang = leftangle + ang;
-  //  OCR0B = 0;
-  //  OCR0A = 0;
   long counter = 0;
   long old_ticks = leftticks;
   while (leftangle < target_ang || over_ride == OVER_ON)
@@ -246,9 +239,6 @@ bool left(float ang)
     analogWrite(LR, min(255, max(MIN_POWER, val)));
     analogWrite(LF, 0);
     analogWrite(RF, min(255, max(MIN_POWER, val + BIAS)));
-    //    OCR1B = val;
-    //    OCR2A = val * 1.25;
-    //loopUSensor();
     if (leftticks == old_ticks)
     {
       counter++;
@@ -268,13 +258,15 @@ bool left(float ang)
   return true;
 }
 
+/*
+  function to execute "RIGHT" command
+  called by handleCommand function
+*/
 bool right(float ang)
 {
   dir = RIGHT;
   long angle_now = rightangle;
   long target_ang = rightangle + ang;
-  //  OCR1B = 0;
-  //  OCR2A = 0;
   long counter = 0;
   long old_ticks = rightticks;
   while (rightangle < target_ang || over_ride == OVER_ON)
@@ -284,9 +276,6 @@ bool right(float ang)
     analogWrite(LR, 0);
     analogWrite(LF, min(255, max(MIN_POWER, val)));
     analogWrite(RF, 0);
-
-    //    OCR0A = val * 1.25;
-    //    OCR0B = val;
     if (rightticks == old_ticks)
     {
       counter++;
@@ -306,7 +295,10 @@ bool right(float ang)
   return true;
 }
 
-// Stop Alex. To replace with bare-metal code later.
+/*
+function to execute "STOP" command
+called by handleCommand or movement functions
+*/
 void stop()
 {
   dir = STOP;
@@ -315,10 +307,6 @@ void stop()
     delay(100);
     analogWrite(RF, 0);
     analogWrite(RR, 0);
-//  OCR0A = 0;
-//  OCR1B = 0;
-//  OCR2A = 0;
-//  OCR0B = 0;
   loopColour();
   loopUSensor();
 }
@@ -338,7 +326,6 @@ void clearCounters()
   over_ride = OVER_OFF;
 }
 
-// Clears one particular counter
 void clearOneCounter(int which)
 {
   clearCounters();
@@ -349,6 +336,10 @@ void initializeState()
   clearCounters();
 }
 
+/*
+  Calls functions as needed according to command
+  packet received
+*/
 void handleCommand(TPacket *command)
 {
   bool all_good = true;
@@ -456,7 +447,6 @@ void setup() {
   initializeState();
   setupUSensor();
   setupColour();
-  //  waitForHello();
   sei();
 }
 
