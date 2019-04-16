@@ -23,7 +23,7 @@ int red = 0;
 int green = 0;  
 int blue = 0;  
     
-void setup()   
+void setupColour()   
 {  
   pinMode(s0, OUTPUT);  
   pinMode(s1, OUTPUT);  
@@ -34,7 +34,7 @@ void setup()
   digitalWrite(s1, HIGH);  
 }  
     
-void loop() 
+void loopColour() 
 {  
   color(); 
   /*
