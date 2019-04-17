@@ -29,9 +29,9 @@ typedef enum
   RESP_FAILSAFE = 6
 } TResponseType;
 
-/*
-  command types
-*/
+// Commands
+// For direction commands, param[0] = distance in cm to move
+// param[1] = speed
 typedef enum
 {
   COMMAND_FORWARD = 0,
@@ -65,18 +65,12 @@ typedef enum
   BIAS = 45
 }Motors;
 
-/*
-  Over-ride status 
-*/
 typedef enum
 {
   OVER_ON = 1,
   OVER_OFF = 0
 }Override_status;
 
-/*
-  colors Definitions
-*/
 typedef enum
 {
   RED = 1,
